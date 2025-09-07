@@ -13,7 +13,7 @@ import { CloudUpload as CloudUploadIcon, Send as SendIcon } from '@mui/icons-mat
 import { useDropzone } from 'react-dropzone';
 
 // APIエンドポイントのURL（ご自身のAPIに合わせて変更してください）
-const API_ENDPOINT = 'https://your-api-endpoint.com/upload-csv';
+const API_ENDPOINT = 'https://on-request-example-64fgxin3kq-uc.a.run.app/';
 
 interface ApiResponseMessage {
   type: 'success' | 'error' | 'info';
@@ -82,6 +82,7 @@ const CsvUploadPage: React.FC = () => {
   };
 
   const handleSnackbarClose = (event?: React.SyntheticEvent | Event, reason?: string) => {
+    console.log(event);
     if (reason === 'clickaway') {
       return;
     }
