@@ -65,3 +65,5 @@ coverage/
 # =========================================
 # Viteのキャッシュ
 .vite/
+.firebase/
+.firebaserc

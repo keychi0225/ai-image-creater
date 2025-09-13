@@ -13,7 +13,7 @@ import { CloudUpload as CloudUploadIcon, Send as SendIcon } from '@mui/icons-mat
 import { useDropzone } from 'react-dropzone';
 
 // APIエンドポイントのURL（ご自身のAPIに合わせて変更してください）
-const API_ENDPOINT = 'https://on-request-example-64fgxin3kq-uc.a.run.app/';
+const API_ENDPOINT = 'https://us-central1-ai-image-creater.cloudfunctions.net/generate_and_save_image';
 
 interface ApiResponseMessage {
   type: 'success' | 'error' | 'info';
@@ -25,6 +25,7 @@ const CsvUploadPage: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [apiResponse, setApiResponse] = useState<ApiResponseMessage | null>(null);
   const [snackbarOpen, setSnackbarOpen] = useState<boolean>(false);
+  const [prompt, setPrompt] = useState<string>('');
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     // 複数ファイルがドロップされた場合でも最初の1つだけを処理
@@ -33,6 +34,21 @@ const CsvUploadPage: React.FC = () => {
       if (file.type === 'text/csv' || file.name.endsWith('.csv')) {
         setSelectedFile(file);
         setApiResponse(null); // 新しいファイルが選択されたら以前のAPIレスポンスをクリア
+
+        //プロンプト抽出
+        // FileReaderインスタンスを作成
+        const reader = new FileReader();
+
+        // ファイル読み込みが完了したときのイベントハンドラ
+        reader.onload = (event: ProgressEvent<FileReader>) => {
+          // ファイルの内容（文字列）を取得し、stateにセット
+          const result = event.target?.result as string;
+          setPrompt(result);
+        };
+
+        // ファイルをテキストとして読み込む
+        reader.readAsText(file, 'Shift_JIS');
+
       } else {
         setApiResponse({ type: 'error', message: 'CSVファイルのみアップロード可能です。' });
         setSnackbarOpen(true);
@@ -54,15 +70,17 @@ const CsvUploadPage: React.FC = () => {
 
     const formData = new FormData();
     formData.append('csvFile', selectedFile);
-
+    const url = API_ENDPOINT + '?prompt=' + prompt;
+    const idToken = '';
     try {
-      const response = await fetch(API_ENDPOINT, {
+      const response = await fetch(url, {
         method: 'POST',
         body: formData,
         // 必要に応じてヘッダーを追加
-        // headers: {
-        //   'Authorization': 'Bearer YOUR_TOKEN',
-        // },
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${idToken}`,
+        },
       });
 
       const data = await response.json();
@@ -140,7 +158,12 @@ const CsvUploadPage: React.FC = () => {
             </Typography>
           </Box>
         )}
-
+        {/* プロンプト */}
+        <Paper elevation={3} sx={{ p: 4, borderRadius: 2, textAlign: 'start' }}>
+          <span>読み込まれたプロンプト</span>
+          <br />
+          {prompt == '' ? null: prompt }
+        </Paper>
         {/* 決定ボタン */}
         <Button
           variant="contained"
