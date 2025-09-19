@@ -1,8 +1,5 @@
 {
   "projects": {
-    "default": "popcreate-f031b",
-    "popcreate": "popcreate-f031b"
-  },
-  "targets": {},
-  "etags": {}
+    "default": "ai-image-creater"
+  }
 }
