@@ -10,7 +10,7 @@ import {
   Alert
 } from '@mui/material';
 
-const API_ENDPOINT = 'https://us-central1-ai-image-creater.cloudfunctions.net/generate_and_save_image'; // ⚠️ Your API endpoint URL
+const API_ENDPOINT = 'https://generate-and-save-image-64fgxin3kq-uc.a.run.app'; // ⚠️ Your API endpoint URL
 
 interface PopCreatePageProps {
   thoughts: string;
@@ -64,7 +64,7 @@ ${props.thoughts}
         headers: {
           'Content-Type': 'application/json',
           // If your API requires an Authorization header, add it here.
-          // 'Authorization': `Bearer YOUR_AUTH_TOKEN`,
+          // 'Authorization': `Bearer ${apiKey}`,
         },
       });
 

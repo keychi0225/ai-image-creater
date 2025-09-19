@@ -12,6 +12,7 @@ from httpx import stream
 from openai import OpenAI
 from flask import Flask, jsonify, send_file
 from flask_cors import CORS
+from firebase_functions import params
 
 app = Flask(__name__)
 
@@ -26,9 +27,9 @@ initialize_app()
 # 関数のグローバルオプションを設定（例：最大インスタンス数）
 set_global_options(max_instances=10)
 
-# 環境変数からOpenAI APIキーを取得
-openai_api_key = "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"
-client = OpenAI(api_key=openai_api_key)
+# SecretParam オブジェクトは関数の外で定義する
+OPENAI_KEY = params.SecretParam('OPENAI_KEY')
+
 headers = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
@@ -88,7 +89,7 @@ def hello_world(req: https_fn.Request) -> https_fn.Response:
     # 成功を示す HTTP ステータスコード200を明示的に返す
     return create_response(jsonify({"message": "Success Test"}))
 
-@https_fn.on_request(timeout_sec=300)
+@https_fn.on_request(timeout_sec=300,secrets=['OPENAI_KEY'])
 def generate_and_save_image(req: https_fn.Request) -> https_fn.Response:
 
     # URLクエリパラメータからプロンプトを取得
@@ -103,6 +104,10 @@ def generate_and_save_image(req: https_fn.Request) -> https_fn.Response:
     bucket = storage.bucket()
 
     try:
+        # 実際の値（文字列）の取得とclientの初期化は、関数の内側で行う
+        api_key_value = OPENAI_KEY.value
+        client = OpenAI(api_key=api_key_value)
+
         # OpenAI gpt-image-1 APIを呼び出し
         response = client.images.generate(
             model="gpt-image-1",  # ←ここを変更
@@ -135,14 +140,16 @@ def generate_and_save_image(req: https_fn.Request) -> https_fn.Response:
         return create_response(jsonify({"message": error_message}))
 
 
-@https_fn.on_request(timeout_sec=300)
+@https_fn.on_request(timeout_sec=300,secrets=['OPENAI_KEY'])
 def chat_with_openai(req: https_fn.Request) -> https_fn.Response:
     try:
         # Get the user's message from the request
         prompt = req.args.get("prompt")
         if not prompt:
             return create_response(jsonify({"error": "Prompt is missing."}))
-
+        # 実際の値（文字列）の取得とclientの初期化は、関数の内側で行う
+        api_key_value = OPENAI_KEY.value
+        client = OpenAI(api_key=api_key_value)
         # Create a conversation with a single user message
         chat_completion = client.chat.completions.create(
             messages=[

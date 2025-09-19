@@ -16,7 +16,7 @@ interface ApiResponse {
   success: boolean;
 }
 
-const API_ENDPOINT = 'https://us-central1-ai-image-creater.cloudfunctions.net/chat_with_openai'; // あなたのFirebase FunctionsのURLに置き換えてください
+const API_ENDPOINT = 'https://chat-with-openai-64fgxin3kq-uc.a.run.app'; // あなたのFirebase FunctionsのURLに置き換えてください
 interface TextChatProps {
   onChange: (csvStr: string) => void;
 }
@@ -90,7 +90,14 @@ const TextChat: React.FC<TextChatProps> = (props: TextChatProps) => {
 感想:${csvStr}`;
     try {
       // fetch APIでGETリクエストを送信
-      const response = await fetch(`${API_ENDPOINT}?prompt=${prompt}`);
+      const response = await fetch(`${API_ENDPOINT}?prompt=${prompt}`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                // If your API requires an Authorization header, add it here.
+                // 'Authorization': `Bearer ${apiKey}`,
+              },
+            });
       
       if (!response.ok) {
         throw new Error('API request failed with status: ' + response.status);

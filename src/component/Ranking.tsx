@@ -6,8 +6,8 @@ interface VoteCounts {
   [key: string]: number;
 }
 
-const API_ENDPOINT = 'https://us-central1-ai-image-creater.cloudfunctions.net/get_vote_counts';
-const IMAGE_BASE_URL = 'https://us-central1-ai-image-creater.cloudfunctions.net/get_image?image_name='; // 画像を取得する関数のURL
+const API_ENDPOINT = 'https://get-vote-counts-64fgxin3kq-uc.a.run.app';
+const IMAGE_BASE_URL = 'https://get-image-64fgxin3kq-uc.a.run.app?image_name='; // 画像を取得する関数のURL
 
 // 投票結果をランキング形式で表示するコンポーネント
 const Ranking: React.FC = () => {
