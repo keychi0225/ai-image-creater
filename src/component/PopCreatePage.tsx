@@ -18,28 +18,26 @@ interface PopCreatePageProps {
 const PopCreatePage: React.FC<PopCreatePageProps> = () => {
   const [popSize, setPopSize] = useState({ width: '1536', height: '1024' });
   const [premise, setPremise] = useState(`手描き風の日本の児童書POPを作成してください。
-  クレヨンと色鉛筆で描いたように、ざらざらした生成り色の紙（12cm×8cm） に表現してください。
-  文字は小学4年生が書いたような、不揃いで遊び心のある筆跡。
-  見出しは赤と青を交互に配置し、大きく黒縁取りで描いてください。
-  全体は子どもらしく温かみがあり、少しミステリアスでインパクトがある雰囲気。`);
+クレヨンと色鉛筆で描いたように、ざらざらした生成り色の紙（12cm×8cm） に表現してください。
+文字は小学4年生が書いたような、不揃いで遊び心のある筆跡。
+見出しは赤と青を交互に配置し、大きく黒縁取りで描いてください。
+全体は子どもらしく温かみがあり、少しミステリアスでインパクトがある雰囲気。`);
   const [catchCopy, setCatchCopy] = useState('「✨ ［ここにキャッチコピー］ ✨」');
   const [emotionalPhrases, setEmotionalPhrases] = useState('「［ここに感情フレーズ］」');
   const [synopsis, setSynopsis] = useState(`［ここに短めのあらすじを3行程度で入れる］
 （※文字切れを防ぐため短文・改行ありで指定）`);
   const [signature, setSignature] = useState('―― K.T.（小学4年生・男子）');
   const [publisher, setPublisher] = useState('［出版社名］');
-  const [illustrationElements, setIllustrationElements] = useState(`
-  左下にテーマに関連するキャラクターや動物（吹き出しつき）
-  隣に説明している少年
-  背景にテーマに関連する小物をシンプルに描く
+  const [illustrationElements, setIllustrationElements] = useState(`左下にテーマに関連するキャラクターや動物（吹き出しつき）
+隣に説明している少年
+背景にテーマに関連する小物をシンプルに描く
   『犬の謎』 → 犬小屋、足あと、消火栓
   『ふつうが一番ふしぎだった！』／『みのまわりの謎大全』 → 標識、電線、駅などの町風景
   『ドックタウン』 → 街並みや建物、犬たち`);
   const [style, setStyle] = useState(`子どもが描いたようなラフで温かみのあるタッチ。
-  見る人が「思わず立ち止まる」インパクトと、ほんの少しのミステリアスさをもたせる。`);
-  const [outputConditions, setOutputConditions] = useState(`
-  必ず PNG形式 で生成してください。
-  文字をすべて表示することを優先してください。`);
+見る人が「思わず立ち止まる」インパクトと、ほんの少しのミステリアスさをもたせる。`);
+  const [outputConditions, setOutputConditions] = useState(`必ず PNG形式 で生成してください。
+文字をすべて表示することを優先してください。`);
   
   const [isLoading, setIsLoading] = useState(false);
   const [responseMessage, setResponseMessage] = useState<string | null>(null);
