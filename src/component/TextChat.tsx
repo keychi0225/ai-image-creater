@@ -131,7 +131,7 @@ const TextChat: React.FC<TextChatProps> = (props: TextChatProps) => {
         flexDirection: 'column',
         gap: 2,
         p: 3,
-        maxWidth: 600,
+        minWidth: 1200,
         margin: '0 auto',
         backgroundColor: 'background.paper',
         borderRadius: 2,

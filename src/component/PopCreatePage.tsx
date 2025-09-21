@@ -7,8 +7,12 @@ import {
   TextField,
   Typography,
   CircularProgress,
-  Alert
+  Alert,
+  Checkbox,
+  FormControlLabel,
 } from '@mui/material';
+import SizeSelecter from './common/SizeSelecter';
+import PositionSelecter from './common/PositionSelecter';
 
 const API_ENDPOINT = 'https://generate-and-save-image-64fgxin3kq-uc.a.run.app'; // ⚠️ Your API endpoint URL
 
@@ -17,17 +21,17 @@ interface PopCreatePageProps {
 }
 const PopCreatePage: React.FC<PopCreatePageProps> = () => {
   const [popSize, setPopSize] = useState({ width: '1536', height: '1024' });
-  const [premise, setPremise] = useState(`手描き風の日本の児童書POPを作成してください。
-クレヨンと色鉛筆で描いたように、ざらざらした生成り色の紙（12cm×8cm） に表現してください。
-文字は小学4年生が書いたような、不揃いで遊び心のある筆跡。
-見出しは赤と青を交互に配置し、大きく黒縁取りで描いてください。
-全体は子どもらしく温かみがあり、少しミステリアスでインパクトがある雰囲気。`);
-  const [catchCopy, setCatchCopy] = useState('「✨ ［ここにキャッチコピー］ ✨」');
-  const [emotionalPhrases, setEmotionalPhrases] = useState('「［ここに感情フレーズ］」');
-  const [synopsis, setSynopsis] = useState(`［ここに短めのあらすじを3行程度で入れる］
-（※文字切れを防ぐため短文・改行ありで指定）`);
+  const [premise, setPremise] = useState(`①文字要素は最優先で必ず出力してください。
+②手描き風の日本の児童書POPを作成してください。
+③クレヨンと色鉛筆で描いたように、ざらざらした生成り色の紙（12cm×8cm） に表現してください。
+④文字は小学4年生が書いたような、不揃いで遊び心のある筆跡。
+⑤見出しは赤と青を交互に配置し、大きく黒縁取りで描いてください。
+⑥全体は子どもらしく温かみがあり、少しミステリアスでインパクトがある雰囲気。`);
+  const [catchCopy, setCatchCopy] = useState('');
+  const [emotionalPhrases, setEmotionalPhrases] = useState('');
+  const [synopsis, setSynopsis] = useState(``);
   const [signature, setSignature] = useState('―― K.T.（小学4年生・男子）');
-  const [publisher, setPublisher] = useState('［出版社名］');
+  const [publisher, setPublisher] = useState('○○○○社');
   const [illustrationElements, setIllustrationElements] = useState(`左下にテーマに関連するキャラクターや動物（吹き出しつき）
 隣に説明している少年
 背景にテーマに関連する小物をシンプルに描く
@@ -36,9 +40,26 @@ const PopCreatePage: React.FC<PopCreatePageProps> = () => {
   『ドックタウン』 → 街並みや建物、犬たち`);
   const [style, setStyle] = useState(`子どもが描いたようなラフで温かみのあるタッチ。
 見る人が「思わず立ち止まる」インパクトと、ほんの少しのミステリアスさをもたせる。`);
-  const [outputConditions, setOutputConditions] = useState(`必ず PNG形式 で生成してください。
-文字をすべて表示することを優先してください。`);
-  
+  const [outputConditions, setOutputConditions] = useState(`必ず PNG形式 で生成してください。`);
+
+  //ドロップダウン
+  const [catchCopyPostition, setCatchCopyPostition] = useState('最上段の真ん中');
+  const [catchCopySize, setCatchCopySize] = useState('強調して大きい');
+  const [emotionalPhrasesPostition, setEmotionalPhrasesPostition] = useState('中段の真ん中');
+  const [emotionalPhrasesSize, setEmotionalPhrasesSize] = useState('やや大きい');
+  const [synopsisPostition, setSynopsisPostition] = useState('中段の左側');
+  const [synopsisSize, setSynopsisSize] = useState('小さい');
+  const [signaturePostition, setSignaturePostition] = useState('最下段の左側');
+  const [signatureSize, setSignatureSize] = useState('小さい');
+  const [publisherPostition, setPublisherPostition] = useState('最下段の右側');
+  const [publisherSize, setPublisherSize] = useState('小さい');
+
+  //チェックボックス
+  const [isEmotionalPhrases, setIsEmotionalPhrases] = useState(true);
+  const [isSynopsis, setIsSynopsis] = useState(true);
+  const [isSignature, setIsSignature] = useState(true);
+  const [isPublisher, setIsPublisher] = useState(true);
+
   const [isLoading, setIsLoading] = useState(false);
   const [responseMessage, setResponseMessage] = useState<string | null>(null);
   const [isError, setIsError] = useState(false);
@@ -49,14 +70,16 @@ const PopCreatePage: React.FC<PopCreatePageProps> = () => {
     setIsError(false);
 
     try {
-      const prompt = `前提：${premise}
+      const prompt = `以下の条件で画像を生成してください。
+      
+最優先の条件：${premise}
 
 【文字要素】
-キャッチコピー（最上部・大きく）：${catchCopy}
-感情フレーズ（中段・強調）：${emotionalPhrases}
-あらすじ要素（下段・小さめ）：${synopsis}
-署名（右下）：${signature}
-出版社（下部・小さく）：${publisher}
+キャッチコピー（位置は${catchCopyPostition}/文字サイズは${catchCopySize}）：${catchCopy}
+${isEmotionalPhrases ? `感情フレーズ（位置は${emotionalPhrasesPostition}/文字サイズは${emotionalPhrasesSize}）：${emotionalPhrases}` : ""}
+${isSynopsis ? `あらすじ要素（位置は${synopsisPostition}/文字サイズは${synopsisSize}）：${synopsis}` : ""}
+${isSignature ? `署名（位置は${signaturePostition}/文字サイズは${signatureSize}）：${signature}` : ""}
+${isPublisher ? `出版社（位置は${publisherPostition}/文字サイズは${publisherSize}）：${publisher}` : ""}
 
 【イラスト要素】
 イラスト：${illustrationElements}
@@ -97,37 +120,25 @@ const PopCreatePage: React.FC<PopCreatePageProps> = () => {
   };
 
   return (
-    <Container maxWidth="md">
-      <Box sx={{ my: 4, p: 3, maxWidth: 600, boxShadow: 3, borderRadius: 2, bgcolor: 'background.paper' }}>
+    <Container>
+      <Box sx={{ my: 4, p: 3, minWidth: 1200, boxShadow: 3, borderRadius: 2, bgcolor: 'background.paper', position: 'relative', }}>
         <Typography variant="h4" component="h1" gutterBottom align="center">
           POP 作成ページ
         </Typography>
         <Typography variant="h5" component="h2" sx={{textAlign: 'start', mt: 3, mb: 2 }}>
-          【前提】
-        </Typography>
-        <TextField
-          fullWidth
-          multiline
-          rows={4}
-          label="前提"
-          value={premise}
-          onChange={(e) => setPremise(e.target.value)}
-        />
-
-        <Typography variant="h5" component="h2" sx={{textAlign: 'start', mt: 3, mb: 2 }}>
-          【サイズ】
+          【POPのサイズ】
         </Typography>
         <Stack spacing={2}>
           <Box sx={{ display: 'flex', gap: 2 }}>
             <TextField
-              fullWidth
+              sx={{width: 100}}
               label="幅 (px)"
               type="number"
               value={popSize.width}
               onChange={(e) => setPopSize({ ...popSize, width: e.target.value })}
             />
             <TextField
-              fullWidth
+              sx={{width: 100}}
               label="高さ (px)"
               type="number"
               value={popSize.height}
@@ -135,53 +146,150 @@ const PopCreatePage: React.FC<PopCreatePageProps> = () => {
             />
           </Box>
         </Stack>
-        <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-          <Typography variant="h5" component="h2" sx={{textAlign: 'start', mt: 4, mb: 2 }}>
-            【文字要素】
-          </Typography>
+        <Typography variant="h5" component="h2" sx={{textAlign: 'start', mt: 3, mb: 2 }}>
+          【最優先の条件】
+        </Typography>
+        <TextField
+          fullWidth
+          multiline
+          rows={4}
+          label="最優先の条件"
+          value={premise}
+          onChange={(e) => setPremise(e.target.value)}
+        />
+        <Typography variant="h5" component="h2" sx={{textAlign: 'start', mt: 3, mb: 2 }}>
+          【キャッチコピー】
+        </Typography>
+        <Box sx={{ display: 'flex', gap: 2, mb: 4}}>
+          <PositionSelecter value={catchCopyPostition} onChange={(event) => setCatchCopyPostition(event.target.value)} />
+          <SizeSelecter value={catchCopySize} onChange={(event) => setCatchCopySize(event.target.value)} />
           <TextField
             fullWidth
-            multiline
-            rows={2}
-            label="上部で選定したキャッチコピー候補"
+            label="キャッチコピー"
             value={catchCopy}
             onChange={(e) => setCatchCopy(e.target.value)}
           />
-          <br/>
+        </Box>
+
+        <Box sx={{ display: 'flex', mt: 4, alignItems: 'center' }}>
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={isEmotionalPhrases}
+                onChange={(event) => setIsEmotionalPhrases(event.target.checked)}
+              />
+            }
+            label=""
+          />
+          <Typography variant="h5" component="h2" sx={{textAlign: 'start', }}>
+            【感情フレーズ】
+          </Typography>
+        </Box>
+        <Box sx={{ display: 'flex', gap: 2, mb: 4 }}>
+          <PositionSelecter value={emotionalPhrasesPostition}
+            onChange={(event) => setEmotionalPhrasesPostition(event.target.value)}
+            disabled={!isEmotionalPhrases} />
+          <SizeSelecter value={emotionalPhrasesSize}
+            onChange={(event) => setEmotionalPhrasesSize(event.target.value)}
+            disabled={!isEmotionalPhrases} />
           <TextField
             fullWidth
-            multiline
-            rows={2}
             label="感情フレーズ"
             value={emotionalPhrases}
             onChange={(e) => setEmotionalPhrases(e.target.value)}
+            disabled={!isEmotionalPhrases}
           />
-          <br/>
+        </Box>
+
+        <Box sx={{ display: 'flex', mt: 4, alignItems: 'center' }}>
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={isSynopsis}
+                onChange={(event) => setIsSynopsis(event.target.checked)}
+              />
+            }
+            label=""
+          />
+          <Typography variant="h5" component="h2" sx={{textAlign: 'start', }}>
+            【あらすじ要素】
+          </Typography>
+        </Box>
+        <Box sx={{ display: 'flex', gap: 2, mb: 4 }}>
+          <PositionSelecter value={synopsisPostition}
+            onChange={(event) => setSynopsisPostition(event.target.value)}
+            disabled={!isSynopsis} />
+          <SizeSelecter value={synopsisSize}
+            onChange={(event) => setSynopsisSize(event.target.value)} 
+            disabled={!isSynopsis}/>
           <TextField
             fullWidth
             multiline
-            rows={2}
+            rows={3}
             label="あらすじ要素"
             value={synopsis}
             onChange={(e) => setSynopsis(e.target.value)}
+            disabled={!isSynopsis}
           />
-          <br/>
+        </Box>
+
+        <Box sx={{ display: 'flex', mt: 4, alignItems: 'center' }}>
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={isSignature}
+                onChange={(event) => setIsSignature(event.target.checked)}
+              />
+            }
+            label=""
+          />
+          <Typography variant="h5" component="h2" sx={{textAlign: 'start', mt: 3, mb: 2 }}>
+            【署名】
+          </Typography>
+        </Box>
+        <Box sx={{ display: 'flex', gap: 2, mb: 4 }}>
+          <PositionSelecter value={signaturePostition}
+            onChange={(event) => setSignaturePostition(event.target.value)}
+            disabled={!isSignature} />
+          <SizeSelecter value={signatureSize}
+            onChange={(event) => setSignatureSize(event.target.value)}
+            disabled={!isSignature} />
           <TextField
             fullWidth
-            multiline
-            rows={2}
             label="署名"
             value={signature}
             onChange={(e) => setSignature(e.target.value)}
+            disabled={!isSignature}
           />
-          <br/>
+        </Box>
+
+        <Box sx={{ display: 'flex', mt: 4, alignItems: 'center' }}>
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={isPublisher}
+                onChange={(event) => setIsPublisher(event.target.checked)}
+              />
+            }
+            label=""
+          />
+          <Typography variant="h5" component="h2" sx={{textAlign: 'start', mt: 3, mb: 2 }}>
+            【出版社】
+          </Typography>
+        </Box>
+        <Box sx={{ display: 'flex', gap: 2, mb: 4 }}>
+          <PositionSelecter value={publisherPostition}
+            onChange={(event) => setPublisherPostition(event.target.value)}
+            disabled={!isPublisher} />
+          <SizeSelecter value={publisherSize}
+            onChange={(event) => setPublisherSize(event.target.value)}
+            disabled={!isPublisher} />
           <TextField
             fullWidth
-            multiline
-            rows={2}
             label="出版社"
             value={publisher}
             onChange={(e) => setPublisher(e.target.value)}
+            disabled={!isPublisher}
           />
         </Box>
 
