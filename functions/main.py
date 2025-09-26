@@ -37,6 +37,13 @@ headers = {
     'Access-Control-Max-Age': '3600',  # プリフライト結果をキャッシュする秒数
     'Content-Type': 'application/json'
 }
+
+image_headers = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    'Access-Control-Max-Age': '3600',  # プリフライト結果をキャッシュする秒数
+}
 # --- HTTPトリガーで起動する関数の定義 ---
 # @https_fn.on_request()デコレータで関数を登録します
 @https_fn.on_request()
@@ -72,10 +79,12 @@ def get_image(req: https_fn.Request) -> https_fn.Response:
             mimetype = 'application/octet-stream' # 推測できない場合は汎用タイプを使用
 
         stream_data = blob.download_as_bytes()
-        return send_file(
+        response = send_file(
             io.BytesIO(stream_data),
-            mimetype=mimetype
+            mimetype=mimetype,
         )
+        response.headers.update(image_headers)
+        return response
 
     except Exception as e:
         print(f"An error occurred: {e}")
@@ -240,7 +249,6 @@ def get_vote_counts(req: https_fn.Request) -> https_fn.Response:
         # エラーが発生した場合、500エラーとして返す
         return create_response(jsonify({"message": "Error:" + str(e)}))
 
-def create_response(res: jsonify):
-    response = res
+def create_response(response):
     response.headers.update(headers)
     return response
