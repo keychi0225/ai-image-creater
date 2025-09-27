@@ -183,40 +183,56 @@ def chat_with_openai(req: https_fn.Request) -> https_fn.Response:
 
 @https_fn.on_request(timeout_sec=300)
 def vote_counter(req: https_fn.Request) -> https_fn.Response:
-
-    # リクエストから投票項目を取得
-    voted_item = req.args.get('item')
-    if voted_item is None:
-        return create_response(jsonify({"message": '"item" is nothing'}))
-
-    # JSONファイル名とパス
-    file_name = 'vote_counts.json'
-    file_path = f'votes/{file_name}'
-
-    # ストレージから現在の投票データを取得
-    bucket = storage.bucket()
-    blob = bucket.blob(file_path)
-
+    """
+    Firebase StorageのJSONファイルに投票数を記録します。
+    投票対象の画像が存在するか確認してから投票処理を行います。
+    """
     try:
-        # ファイルが存在する場合
-        file_data = blob.download_as_text()
-        vote_data = json.loads(file_data)
-    except Exception:
-        # ファイルが存在しない場合
-        vote_data = {}
+        # リクエストから投票項目を取得
+        voted_item = req.args.get('item')
+        if voted_item is None:
+            return create_response(jsonify({"message": '"item" is missing'}))
 
-    # 投票数をインクリメント
-    vote_data[voted_item] = vote_data.get(voted_item, 0) + 1
+        # Storageバケットへの参照を取得
+        bucket = storage.bucket()
 
-    # 更新されたデータをJSON形式で保存
-    blob.upload_from_string(json.dumps(vote_data, indent=4), content_type='application/json')
+        # 投票対象の画像blobの存在チェック
+        image_path = f'votes/images/{voted_item}'
+        image_blob = bucket.blob(image_path)
+        if not image_blob.exists():
+            return create_response(jsonify({"message": f'Voted item image "{voted_item}" not found.'}))
 
-    # 成功レスポンスを返す
-    response = {
-        'message': f'"{voted_item}"に投票しました。 現在：{vote_data}',
-        'current_counts': vote_data
-    }
-    return create_response(jsonify(response))
+        # JSONファイル名とパス
+        file_name = 'vote_counts.json'
+        file_path = f'votes/{file_name}'
+        blob = bucket.blob(file_path)
+
+        # ストレージから現在の投票データを取得
+        try:
+            # ファイルが存在する場合
+            file_data = blob.download_as_text()
+            vote_data = json.loads(file_data)
+        except Exception:
+            # ファイルが存在しない場合
+            vote_data = {}
+
+        # 投票数をインクリメント
+        vote_data[voted_item] = vote_data.get(voted_item, 0) + 1
+
+        # 更新されたデータをJSON形式で保存
+        blob.upload_from_string(json.dumps(vote_data, indent=4), content_type='application/json')
+
+        # 成功レスポンスを返す
+        response = {
+            'message': f'"{voted_item}"に投票しました。 現在：{vote_data.get(voted_item)}票',
+            'current_counts': vote_data
+        }
+        return create_response(jsonify(response))
+
+    except Exception as e:
+        # 予期せぬエラーが発生した場合
+        print(f"Error: {e}")
+        return create_response(jsonify({"message": "Error: An unexpected error occurred."}))
 
 @https_fn.on_request(timeout_sec=300)
 def get_vote_counts(req: https_fn.Request) -> https_fn.Response:
@@ -248,6 +264,65 @@ def get_vote_counts(req: https_fn.Request) -> https_fn.Response:
     except Exception as e:
         # エラーが発生した場合、500エラーとして返す
         return create_response(jsonify({"message": "Error:" + str(e)}))
+
+@https_fn.on_request(timeout_sec=300)
+def get_vote_targets(req: https_fn.Request) -> https_fn.Response:
+    """
+    Firebase Storageの 'votes/images/' ディレクトリにある画像のファイル名を取得し、
+    ファイル名をキー、値を0としたオブジェクトを返します。
+    """
+    try:
+        # Storageバケットへの参照を取得
+        bucket = storage.bucket()
+
+        # 指定されたプレフィックス内のすべてのblob（ファイル）をリストアップ
+        # files/a.jpg のようなフルパスで返される
+        blobs = bucket.list_blobs(prefix='votes/images/')
+
+        # ファイル名をキー、値を0とするオブジェクトを作成
+        # {'a.jpg': 0, 'b.jpg': 0, ...}
+        vote_targets = {}
+        for blob in blobs:
+            # プレフィックス 'votes/images/' を取り除いてファイル名のみを取得
+            file_name = blob.name.replace('votes/images/', '')
+            # ディレクトリ自体は無視
+            if file_name:
+                vote_targets[file_name] = 0
+
+        # 作成したオブジェクトをJSONレスポンスとして返す
+        return create_response(jsonify(vote_targets))
+
+    except Exception as e:
+        # エラーが発生した場合、500エラーとして返す
+        return create_response(jsonify({"message": "Error:" + str(e)}))
+
+@https_fn.on_request(timeout_sec=300)
+def clear_votes(req: https_fn.Request) -> https_fn.Response:
+    """
+    Firebase Storageの 'votes/vote_counts.json' を空のJSONファイルでクリアします。
+    """
+    try:
+        # JSONファイル名とパス
+        file_name = 'vote_counts.json'
+        file_path = f'votes/{file_name}'
+
+        # Storageバケットへの参照を取得
+        bucket = storage.bucket()
+        blob = bucket.blob(file_path)
+
+        # ファイルを空のJSONオブジェクトで上書き
+        blob.upload_from_string(json.dumps({}, indent=4), content_type='application/json')
+
+        # 成功レスポンスを返す
+        response = {
+            'message': f'"{file_path}" has been cleared.'
+        }
+        return create_response(jsonify(response))
+
+    except Exception as e:
+        # エラーが発生した場合、500エラーとして返す
+        print(f"Error: {e}")
+        return create_response(jsonify({"message": "Error: An unexpected error occurred."}))
 
 def create_response(response):
     response.headers.update(headers)

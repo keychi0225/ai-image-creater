@@ -3,13 +3,14 @@ import TextChat from './component/TextChat';
 import PopCreatePage from './component/PopCreatePage';
 import Ranking from './component/Ranking';
 import { useState } from 'react';
-import { Box, Button, Modal } from '@mui/material';
+import { Box, Button, Modal, } from '@mui/material';
+import ClearVoteModal from './component/ClearVoteModal';
 
 function App() {
   const [thoughts, setThoughts] = useState<string>('');
   const [open, setOpen] = useState(false); // ★モーダルの開閉を管理するstate
 
-  const handleOpen = () => setOpen(true);
+  const handleRankingOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
 
   const modalStyle = {
@@ -35,13 +36,16 @@ function App() {
           position: 'fixed', // ★ヘッダーを固定
           top: 0,
           right: 0,
+          gap: 2,
           zIndex: 1000,
         }}
       >
-        <Button onClick={handleOpen} variant="contained" color="primary">
+        <Button onClick={handleRankingOpen} variant="contained" color="primary">
           ランキングを表示
         </Button>
+        <ClearVoteModal />
       </Box>
+
 
       <TextChat onChange={(res: string) => setThoughts(res)} />
       <PopCreatePage thoughts={thoughts} />
@@ -57,6 +61,7 @@ function App() {
           <Ranking />
         </Box>
       </Modal>
+
     </>
   );
 }
