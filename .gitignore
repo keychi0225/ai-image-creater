@@ -24,7 +24,7 @@ out/
 .env.development.local
 .env.test.local
 .env.production.local
-service-account-key.json
+
 
 # =========================================
 # ログファイル
@@ -67,3 +67,8 @@ coverage/
 # Viteのキャッシュ
 .vite/
 .firebase/
+
+# =========================================
+# APIキー
+# =========================================
+functions/gcp/
