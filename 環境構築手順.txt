@@ -1,3 +1,13 @@
+【依存関係回復】
+venv有効後に。
+pip install -r requirements.txt
+　※ファイルにライブラリを羅列
+または
+pip install ライブラリ名
+
+【デバッグ方法】
+$env:PYTHONIOENCODING="utf-8"; firebase emulators:start
+
 【Git構築】
 git init .
 git remote add origin https://github.com/miyoshiakira/ai-image-creater.git
@@ -23,8 +33,19 @@ firebase init
 ※Gitの設定のところは「miyoshiakira/ai-image-creater」みたいに入力する
 
 
+【アクティブ化】
+cd functions
+.\venv\Scripts\activate
+
 【デプロイコマンド】
 cd functions
 .\venv\Scripts\activate
 cd ..
-firebase deploy
+firebase deploy --only functions
+firebase deploy --only functions:XXXXXXXX
+
+【pythonのAPIキー確認】
+firebase functions:secrets:set GCP_SERVICE_KEY
+ ./gcp/service-account-key.json
+firebase functions:secrets:access GCP_SERVICE_KEY
+・サービスアカウントのキーパスはここ(path/to/serviceAccountKey.json)

@@ -1,39 +1,36 @@
-import TextChat from '../component/TextChat';
-import PopCreatePage from '../component/PopCreatePage';
-import Ranking from '../component/Ranking';
-import { useState } from 'react';
-import { Box, Button, Modal, } from '@mui/material';
-import ClearVoteModal from '../component/ClearVoteModal';
-import VoteSystemButton from '../component/VoteSystemButton';
+import Ranking from "../component/Ranking";
+import { useState } from "react";
+import { Box, Button, Modal } from "@mui/material";
+import ClearVoteModal from "../component/ClearVoteModal";
+import VoteSystemButton from "../component/VoteSystemButton";
+import HomeStepper from "../layout/HomeStepper";
 
 function HomePage() {
-  const [thoughts, setThoughts] = useState<string>('');
   const [open, setOpen] = useState(false); // ★モーダルの開閉を管理するstate
 
   const handleRankingOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
 
   const modalStyle = {
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
+    position: "absolute",
+    top: "50%",
+    left: "50%",
+    transform: "translate(-50%, -50%)",
     width: 800,
-    bgcolor: 'background.paper',
-    border: '2px solid #000',
+    bgcolor: "background.paper",
+    border: "2px solid #000",
     boxShadow: 24,
     p: 4,
   };
 
   return (
     <>
-      <Box 
+      <Box
         sx={{
-          width: '100%',
-          display: 'flex',
-          justifyContent: 'flex-end',
+          width: "100%",
+          display: "flex",
+          justifyContent: "center",
           p: 2,
-          position: 'fixed', // ★ヘッダーを固定
           top: 0,
           right: 0,
           gap: 2,
@@ -46,8 +43,7 @@ function HomePage() {
         <VoteSystemButton />
         <ClearVoteModal />
       </Box>
-      <TextChat onChange={(res: string) => setThoughts(res)} />
-      <PopCreatePage thoughts={thoughts} />
+      <HomeStepper />
       {/* ★ランキングを表示するモーダル */}
       <Modal
         open={open}

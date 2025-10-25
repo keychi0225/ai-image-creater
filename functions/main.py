@@ -13,6 +13,9 @@ from openai import OpenAI
 from flask import Flask, jsonify, send_file
 from flask_cors import CORS
 from firebase_functions import params
+from werkzeug.datastructures import FileStorage
+from werkzeug.formparser import parse_form_data
+from google.cloud import speech
 
 app = Flask(__name__)
 
@@ -29,6 +32,7 @@ set_global_options(max_instances=10)
 
 # SecretParam オブジェクトは関数の外で定義する
 OPENAI_KEY = params.SecretParam('OPENAI_KEY')
+GCP_KEY_PATH = params.SecretParam('GCP_KEY_PATH')  # ★ SecretParam を利用
 
 headers = {
     'Access-Control-Allow-Origin': '*',
@@ -44,6 +48,8 @@ image_headers = {
     'Access-Control-Allow-Headers': 'Content-Type, Authorization',
     'Access-Control-Max-Age': '3600',  # プリフライト結果をキャッシュする秒数
 }
+
+
 # --- HTTPトリガーで起動する関数の定義 ---
 # @https_fn.on_request()デコレータで関数を登録します
 @https_fn.on_request()
@@ -67,7 +73,8 @@ def get_image(req: https_fn.Request) -> https_fn.Response:
         # 画像のファイルパスを指定してBlob（ファイル）への参照を作成
         # 例: 'images/photo.jpg' のようにフォルダ名を含めることもできます
         blob = bucket.blob(f'votes/images/{image_name}')
-
+        if not blob.exists():
+            blob = bucket.blob(f'images/{image_name}')
         # ファイルが存在するか確認
         if not blob.exists():
             print(f"Error: File '{image_name}' not found.")
@@ -76,7 +83,7 @@ def get_image(req: https_fn.Request) -> https_fn.Response:
         # ファイルのMIMEタイプを推測
         mimetype, _ = mimetypes.guess_type(image_name)
         if not mimetype:
-            mimetype = 'application/octet-stream' # 推測できない場合は汎用タイプを使用
+            mimetype = 'application/octet-stream'  # 推測できない場合は汎用タイプを使用
 
         stream_data = blob.download_as_bytes()
         response = send_file(
@@ -90,6 +97,7 @@ def get_image(req: https_fn.Request) -> https_fn.Response:
         print(f"An error occurred: {e}")
         return jsonify({"message": f"An error occurred: {e}"})
 
+
 @https_fn.on_request()
 def hello_world(req: https_fn.Request) -> https_fn.Response:
     # サーバーのログに出力
@@ -98,9 +106,9 @@ def hello_world(req: https_fn.Request) -> https_fn.Response:
     # 成功を示す HTTP ステータスコード200を明示的に返す
     return create_response(jsonify({"message": "Success Test"}))
 
-@https_fn.on_request(timeout_sec=300,secrets=['OPENAI_KEY'])
-def generate_and_save_image(req: https_fn.Request) -> https_fn.Response:
 
+@https_fn.on_request(timeout_sec=300, secrets=['OPENAI_KEY'])
+def generate_and_save_image(req: https_fn.Request) -> https_fn.Response:
     # URLクエリパラメータからプロンプトを取得
     prompt = req.args.get('prompt')
     size = req.args.get('size')
@@ -141,7 +149,10 @@ def generate_and_save_image(req: https_fn.Request) -> https_fn.Response:
         response_message = f'画像 "{file_name}" を正常に生成・アップロードしました。'
         print(response_message)
 
-        return create_response(jsonify({"message": "成功しました！"}))
+        return create_response(jsonify({
+            "message": "成功しました！",
+            "image_path": file_name,
+        }))
 
     except Exception as e:
         error_message = f'エラー: 画像の生成またはアップロードに失敗しました - {str(e)}'
@@ -149,7 +160,7 @@ def generate_and_save_image(req: https_fn.Request) -> https_fn.Response:
         return create_response(jsonify({"message": error_message}))
 
 
-@https_fn.on_request(timeout_sec=300,secrets=['OPENAI_KEY'])
+@https_fn.on_request(timeout_sec=300, secrets=['OPENAI_KEY'])
 def chat_with_openai(req: https_fn.Request) -> https_fn.Response:
     try:
         # Get the user's message from the request
@@ -234,6 +245,7 @@ def vote_counter(req: https_fn.Request) -> https_fn.Response:
         print(f"Error: {e}")
         return create_response(jsonify({"message": "Error: An unexpected error occurred."}))
 
+
 @https_fn.on_request(timeout_sec=300)
 def get_vote_counts(req: https_fn.Request) -> https_fn.Response:
     """
@@ -248,7 +260,7 @@ def get_vote_counts(req: https_fn.Request) -> https_fn.Response:
 
         # ファイルが存在するか確認
         if not blob.exists():
-            return create_response(jsonify({"message":"File not found"}))
+            return create_response(jsonify({"message": "File not found"}))
         print('start reading vote_counts.json')
         # ファイルの中身を文字列としてダウンロード
         json_data_str = blob.download_as_string()
@@ -264,6 +276,7 @@ def get_vote_counts(req: https_fn.Request) -> https_fn.Response:
     except Exception as e:
         # エラーが発生した場合、500エラーとして返す
         return create_response(jsonify({"message": "Error:" + str(e)}))
+
 
 @https_fn.on_request(timeout_sec=300)
 def get_vote_targets(req: https_fn.Request) -> https_fn.Response:
@@ -296,6 +309,7 @@ def get_vote_targets(req: https_fn.Request) -> https_fn.Response:
         # エラーが発生した場合、500エラーとして返す
         return create_response(jsonify({"message": "Error:" + str(e)}))
 
+
 @https_fn.on_request(timeout_sec=300)
 def clear_votes(req: https_fn.Request) -> https_fn.Response:
     """
@@ -323,6 +337,81 @@ def clear_votes(req: https_fn.Request) -> https_fn.Response:
         # エラーが発生した場合、500エラーとして返す
         print(f"Error: {e}")
         return create_response(jsonify({"message": "Error: An unexpected error occurred."}))
+
+
+# Functionsが使用するシークレットを定義
+# 登録したシークレット名 (SECRET_KEY_STT) を指定
+@https_fn.on_request(secrets=["GCP_KEY_PATH"])
+def convert_audio(req: https_fn.Request) -> https_fn.Response:
+    # Cloud Speech-to-Text APIクライアントを初期化
+    speech_client = initialize_speech_client(GCP_KEY_PATH.value)
+    print(f'GCP_KEY_PATH: {GCP_KEY_PATH.value}')
+    # 認証が成功しているかを確認
+    if speech_client is None:
+        return https_fn.Response("Error: Speech Client failed to initialize.", status=500)
+    print(f'speech_client: {speech_client}')
+    # 2. リクエストから音声ファイル（Blob）を抽出
+    # クライアントからは multipart/form-data で音声データが送られることを想定
+    audio_file = req.files['audio_file']
+
+    if not audio_file:
+        return https_fn.Response("Error: 'audio_file' not found in request form data.", status=400)
+
+    print(f'audio_file: {audio_file}')
+
+    # 3. Speech-to-Text APIへのリクエストを構築
+    audio_content = audio_file.read()
+
+    # 1. 設定をPythonのdict型で定義
+    # 注意: Enum値はそのまま渡すか、文字列として渡す場合は適切な処理が必要です。
+    # ここでは、簡潔のためEnum値をそのまま使用します。
+    config_dict = {
+        "encoding": speech.RecognitionConfig.AudioEncoding.ENCODING_UNSPECIFIED,
+        "sample_rate_hertz": 48000,
+        "language_code": "ja-JP",
+        "model": "default"  # 省略可
+    }
+
+    # 2. dictをキーワード引数として展開して、configオブジェクトを作成
+    config = speech.RecognitionConfig(**config_dict)
+
+    audio = speech.RecognitionAudio(content=audio_content)
+    print(f'audio OK')
+
+    # 4. Speech-to-Text APIの呼び出し (同期処理)
+    try:
+        response = speech_client.recognize(config=config, audio=audio)
+    except Exception as e:
+        return create_response(jsonify({"message": f"Speech-to-Text API Error: {e}"}))
+    print(f'response: {response}')
+    # 5. 結果の抽出と応答の返却
+    if response.results:
+        # 最も確度の高い結果を取得
+        transcription = response.results[0].alternatives[0].transcript
+        confidence = response.results[0].alternatives[0].confidence
+        print(f'transcription: {transcription}')
+        print(f'confidence: {confidence}')
+        return create_response(jsonify({
+                "transcription": transcription,
+                "confidence": confidence,
+                "message": "Success"
+            }))
+    else:
+        return create_response(jsonify({"message": f"result None"}))
+
+
+# Functionsのクライアントを初期化する関数
+def initialize_speech_client(KEY_PATH):
+    if KEY_PATH:
+        # サービス アカウント キーファイルを指定してクライアントを初期化
+        # この方法が、キーをコードベースに含める場合の「1の方法」です。
+        return speech.SpeechClient.from_service_account_json(KEY_PATH)
+    else:
+        # 環境変数が設定されていない、またはファイルが存在しない場合は
+        # Functionsのデフォルト認証（ADC）を試みる（安全な代替案）
+        print("WARN: Service account key path not found, falling back to ADC.")
+        return speech.SpeechClient()
+
 
 def create_response(response):
     response.headers.update(headers)

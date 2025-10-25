@@ -2,3 +2,4 @@ firebase_functions~=0.1.0
 openai
 flask
 firebase-admin
+google-cloud-speech
