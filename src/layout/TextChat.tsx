@@ -7,8 +7,13 @@ import {
   Paper,
   Alert,
   Snackbar,
-  Switch,
   FormControlLabel,
+  FormControl,
+  FormLabel,
+  RadioGroup,
+  Radio,
+  Container,
+  TextField,
 } from "@mui/material";
 import {
   CloudUpload as CloudUploadIcon,
@@ -38,7 +43,7 @@ const TextChat: React.FC<TextChatProps> = (props: TextChatProps) => {
 6.長すぎ、説明的すぎ、漢字多すぎはNG`;
   const [apiResponse, setApiResponse] = useState<ApiResponse | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [audioMode, setAudioMode] = useState<boolean>(true);
+  const [createTextMode, setCreateTextMode] = useState<string>("Audio");
 
   //CSV関連
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -119,6 +124,7 @@ const TextChat: React.FC<TextChatProps> = (props: TextChatProps) => {
       }
 
       const data: ApiResponse = await response.json();
+      console.log(data);
       setApiResponse(data);
       // ここで必ず向こうのコンポーネントに共有する
       props.onSyncCatchCopy(data.reply);
@@ -168,18 +174,38 @@ const TextChat: React.FC<TextChatProps> = (props: TextChatProps) => {
         onChange={handleInputChange}
       /> */}
       <Paper elevation={3} sx={{ p: 2, borderRadius: 2, textAlign: "start" }}>
-        <FormControlLabel
-          control={
-            <Switch
-              onChange={(_, checked) => {
-                setAudioMode(checked);
-              }}
-              defaultChecked
-            />
-          }
-          label="録音モード ←→ テキストモード"
-        />
-        {!audioMode && (
+        <FormControl>
+          <FormLabel id="create-text--radio-buttons-group-label">
+            入力モード切替
+          </FormLabel>
+          <RadioGroup
+            aria-labelledby="create-text-radio-buttons-group-label"
+            defaultValue="Audio"
+            name="radio-buttons-group"
+            onChange={(_, checked) => {
+              setCreateTextMode(checked);
+            }}
+          >
+            <Container>
+              <FormControlLabel
+                value="Audio"
+                control={<Radio />}
+                label="録音モード"
+              />
+              <FormControlLabel
+                value="Text"
+                control={<Radio />}
+                label="テキストモード"
+              />
+              <FormControlLabel
+                value="Csv"
+                control={<Radio />}
+                label="CSVモード"
+              />
+            </Container>
+          </RadioGroup>
+        </FormControl>
+        {createTextMode == "Csv" && (
           <Box style={{ width: "50%" }}>
             {/* ファイルドロップゾーン */}
             <Box
@@ -242,9 +268,24 @@ const TextChat: React.FC<TextChatProps> = (props: TextChatProps) => {
             )}
           </Box>
         )}
-        {audioMode && (
+        {createTextMode == "Audio" && (
           <Box style={{ width: "100%" }}>
             <AudioRecorder OnChange={setCsvStr} />
+          </Box>
+        )}
+        {createTextMode == "Text" && (
+          <Box style={{ width: "100%" }}>
+            <TextField
+              style={{ width: "100%" }}
+              id="outlined-multiline-static"
+              label="ここに感想を書いてね"
+              multiline
+              rows={4}
+              value={csvStr}
+              onChange={(value) => {
+                setCsvStr(value.target.value);
+              }}
+            />
           </Box>
         )}
       </Paper>

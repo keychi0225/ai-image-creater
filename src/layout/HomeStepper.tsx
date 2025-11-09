@@ -17,6 +17,7 @@ export default function HomeStepper() {
   const [skipped, setSkipped] = React.useState(new Set<number>());
   const [catchCopy, setCatchCopy] = React.useState<string>("");
   const [imageName, setImageName] = React.useState<string>("");
+  const [isLoading, setIsLoading] = React.useState<boolean>(false);
   const isStepSkipped = (step: number) => {
     return skipped.has(step);
   };
@@ -61,22 +62,27 @@ export default function HomeStepper() {
               thoughts={thoughts}
               catchCopy={catchCopy}
               onSyncImage={setImageName}
+              onLoad={setIsLoading}
             />
           )}
           {activeStep == 2 && <ImageResultPage imageName={imageName} />}
           <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
-            <Button
-              variant="contained"
-              disabled={activeStep === 0}
-              onClick={handleBack}
-              sx={{ m: 4 }}
-            >
-              Back
-            </Button>
+            {!isLoading && (
+              <Button
+                variant="contained"
+                disabled={activeStep === 0}
+                onClick={handleBack}
+                sx={{ m: 4 }}
+              >
+                Back
+              </Button>
+            )}
             <Box sx={{ flex: "1 1 auto" }} />
-            <Button sx={{ m: 4 }} variant="contained" onClick={handleNext}>
-              {activeStep === steps.length - 1 ? "Finish" : "Next"}
-            </Button>
+            {!isLoading && (
+              <Button sx={{ m: 4 }} variant="contained" onClick={handleNext}>
+                {activeStep === steps.length - 1 ? "Finish" : "Next"}
+              </Button>
+            )}
           </Box>
         </Paper>
       </div>

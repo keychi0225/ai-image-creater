@@ -23,6 +23,7 @@ interface PopCreatePageProps {
   thoughts: string;
   catchCopy: string;
   onSyncImage: (imageName: string) => void;
+  onLoad: (isLoading: boolean) => void;
 }
 const PopCreatePage = (props: PopCreatePageProps) => {
   const catchCopyOption = props.catchCopy.split("・") as Array<string>;
@@ -36,19 +37,19 @@ const PopCreatePage = (props: PopCreatePageProps) => {
 ⑥全体は子どもらしく温かみがあり、少しミステリアスでインパクトがある雰囲気。`);
   const [catchCopy, setCatchCopy] = useState("");
   const [emotionalPhrases, setEmotionalPhrases] = useState("");
-  //const [synopsis, setSynopsis] = useState(``);
+  const [synopsis, setSynopsis] = useState(``);
+  const [synopsis2, setSynopsis2] = useState(``);
+  const [synopsis3, setSynopsis3] = useState(``);
   const [signature, setSignature] = useState("―― K.T.（小学4年生・男子）");
   const [publisher, setPublisher] = useState("○○○○社");
-  const [illustrationElements, setIllustrationElements] =
-    useState(`左下にテーマに関連するキャラクターや動物（吹き出しつき）
-隣に説明している少年
-背景にテーマに関連する小物をシンプルに描く
-  『犬の謎』 → 犬小屋、足あと、消火栓
-  『ふつうが一番ふしぎだった！』／『みのまわりの謎大全』 → 標識、電線、駅などの町風景
-  『ドックタウン』 → 街並みや建物、犬たち`);
+  const [illustrationElements, setIllustrationElements] = useState(
+    `左下にテーマに関連するキャラクターや動物（吹き出しつき）`
+  );
   const [style, setStyle] =
-    useState(`子どもが描いたようなラフで温かみのあるタッチ。
-見る人が「思わず立ち止まる」インパクトと、ほんの少しのミステリアスさをもたせる。`);
+    useState(`①【最重要】余白があれば、背景にテーマに関連する小物をシンプルに描く
+②隣に説明している少年
+③子どもが描いたようなラフで温かみのあるタッチ。
+④見る人が「思わず立ち止まる」インパクトと、ほんの少しのミステリアスさをもたせる。`);
   const outputConditions = `必ず PNG形式 で生成してください。`;
 
   //ドロップダウン
@@ -59,8 +60,8 @@ const PopCreatePage = (props: PopCreatePageProps) => {
     useState("中段の真ん中");
   const [emotionalPhrasesSize, setEmotionalPhrasesSize] =
     useState("やや大きい");
-  //const [synopsisPostition, setSynopsisPostition] = useState('中段の左側');
-  //const [synopsisSize, setSynopsisSize] = useState('小さい');
+  const [synopsisPostition, setSynopsisPostition] = useState("中段の左側");
+  const [synopsisSize, setSynopsisSize] = useState("小さい");
   const [signaturePostition, setSignaturePostition] = useState("最下段の左側");
   const [signatureSize, setSignatureSize] = useState("小さい");
   const [publisherPostition, setPublisherPostition] = useState("最下段の右側");
@@ -68,7 +69,6 @@ const PopCreatePage = (props: PopCreatePageProps) => {
 
   //チェックボックス
   const [isEmotionalPhrases, setIsEmotionalPhrases] = useState(false);
-  //const [isSynopsis, setIsSynopsis] = useState(true);
   const [isSignature, setIsSignature] = useState(false);
   const [isPublisher, setIsPublisher] = useState(false);
 
@@ -78,6 +78,7 @@ const PopCreatePage = (props: PopCreatePageProps) => {
 
   const handleCreatePop = async () => {
     setIsLoading(true);
+    props.onLoad(true);
     setResponseMessage(null);
     setIsError(false);
 
@@ -88,6 +89,12 @@ const PopCreatePage = (props: PopCreatePageProps) => {
 
 【文字要素】
 キャッチコピー（位置は${catchCopyPostition}/文字サイズは${catchCopySize}）：${catchCopy}
+あらすじ（位置は${synopsisPostition}/文字サイズは${synopsisSize}）： 
+ ${synopsis && `・${synopsis}`}
+ ${synopsis2 && `・${synopsis2}`}
+ ${synopsis3 && `・${synopsis3}`}
+
+【オプション要素】
 ${
   isEmotionalPhrases
     ? `感情フレーズ（位置は${emotionalPhrasesPostition}/文字サイズは${emotionalPhrasesSize}）：${emotionalPhrases}`
@@ -142,6 +149,7 @@ ${
       setIsError(true);
     } finally {
       setIsLoading(false);
+      props.onLoad(false);
     }
   };
 
@@ -170,7 +178,7 @@ ${
         <TextField
           fullWidth
           multiline
-          rows={4}
+          minRows={6}
           label="最優先の条件"
           value={premise}
           onChange={(e) => setPremise(e.target.value)}
@@ -217,6 +225,59 @@ ${
             onChange={(e) => setCatchCopy(e.target.value)}
           />
         </Box>
+        <Box sx={{ display: "flex", gap: 2, mb: 4 }}>
+          <Typography variant="h5" component="h2" sx={{ textAlign: "start" }}>
+            【本の内容】
+          </Typography>
+        </Box>
+        <Box sx={{ display: "flex", gap: 2, mb: 4 }}>
+          <PositionSelecter
+            value={synopsisPostition}
+            onChange={(event) => setSynopsisPostition(event.target.value)}
+          />
+          <SizeSelecter
+            value={synopsisSize}
+            onChange={(event) => setSynopsisSize(event.target.value)}
+          />
+        </Box>
+        <Box sx={{ display: "block", gap: 2, mb: 4 }}>
+          <Box sx={{ mt: 2 }}>
+            <TextField
+              fullWidth
+              label="①あらすじ要素(15文字以内)"
+              inputProps={{
+                maxLength: 15,
+              }}
+              value={synopsis}
+              onChange={(e) => setSynopsis(e.target.value)}
+              variant="outlined"
+            />
+          </Box>
+          <Box sx={{ mt: 2 }}>
+            <TextField
+              fullWidth
+              label="②あらすじ要素(15文字以内)"
+              inputProps={{
+                maxLength: 15,
+              }}
+              value={synopsis2}
+              onChange={(e) => setSynopsis2(e.target.value)}
+              variant="outlined"
+            />
+          </Box>
+          <Box sx={{ mt: 2 }}>
+            <TextField
+              fullWidth
+              label="③あらすじ要素(15文字以内)"
+              inputProps={{
+                maxLength: 15,
+              }}
+              value={synopsis3}
+              onChange={(e) => setSynopsis3(e.target.value)}
+              variant="outlined"
+            />
+          </Box>
+        </Box>
 
         <Box sx={{ display: "flex", flexDirection: "column", mb: 4 }}>
           <Typography
@@ -229,7 +290,6 @@ ${
           <TextField
             fullWidth
             multiline
-            rows={3}
             label="イラスト"
             value={illustrationElements}
             onChange={(e) => setIllustrationElements(e.target.value)}
@@ -238,7 +298,7 @@ ${
           <TextField
             fullWidth
             multiline
-            rows={3}
+            minRows={6}
             label="スタイル"
             value={style}
             onChange={(e) => setStyle(e.target.value)}
