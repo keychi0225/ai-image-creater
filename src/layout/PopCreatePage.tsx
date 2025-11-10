@@ -133,6 +133,7 @@ ${
       if (response.ok) {
         setResponseMessage(data.message || "POP creation successful!");
         props.onSyncImage(data.image_path);
+        setIsLoading(false);
       } else {
         throw new Error(data.error || "Something went wrong on the server.");
       }
