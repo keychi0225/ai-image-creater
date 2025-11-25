@@ -341,7 +341,7 @@ def clear_votes(req: https_fn.Request) -> https_fn.Response:
 
 # Functionsが使用するシークレットを定義
 # 登録したシークレット名 (SECRET_KEY_STT) を指定
-@https_fn.on_request(secrets=["GCP_KEY_PATH"])
+@https_fn.on_request(secrets=["GCP_KEY_PATH"], timeout_sec=300, memory=2048 )
 def convert_audio(req: https_fn.Request) -> https_fn.Response:
     # Cloud Speech-to-Text APIクライアントを初期化
     speech_client = initialize_speech_client(GCP_KEY_PATH.value)
@@ -380,7 +380,12 @@ def convert_audio(req: https_fn.Request) -> https_fn.Response:
 
     # 4. Speech-to-Text APIの呼び出し (同期処理)
     try:
-        response = speech_client.recognize(config=config, audio=audio)
+        # operation オブジェクトが返される
+        operation = speech_client.long_running_recognize(config=config, audio=audio)
+        print("非同期処理を開始しました。完了を待機します...")
+        # 4. 完了を待機 (最大タイムアウト内で)
+        # これが完了すると LongRunningRecognizeResponse が返されます
+        response = operation.result(timeout=290)  # Functionsのタイムアウト(300秒)より少し短く設定
     except Exception as e:
         return create_response(jsonify({"message": f"Speech-to-Text API Error: {e}"}))
     print(f'response: {response}')
