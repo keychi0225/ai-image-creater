@@ -1,8 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Box,
   Button,
-  Container,
   TextField,
   Typography,
   CircularProgress,
@@ -13,6 +12,8 @@ import {
   Select,
   MenuItem,
   Switch,
+  Paper,
+  LinearProgress,
 } from "@mui/material";
 import SizeSelecter from "../component/common/SizeSelecter";
 import PositionSelecter from "../component/common/PositionSelecter";
@@ -25,6 +26,29 @@ interface PopCreatePageProps {
   onSyncImage: (imageName: string) => void;
   onLoad: (isLoading: boolean) => void;
 }
+
+// 近未来的な接続ラインコンポーネント
+const FlowConnector = () => (
+  <Box
+    sx={{
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      my: 1,
+    }}
+  >
+    <Box
+      sx={{
+        width: "2px",
+        height: "40px",
+        background:
+          "linear-gradient(180deg, rgba(0,242,255,0) 0%, rgba(0,242,255,1) 50%, rgba(0,242,255,0) 100%)",
+        boxShadow: "0 0 8px rgba(0, 242, 255, 0.6)",
+      }}
+    />
+  </Box>
+);
+
 const PopCreatePage = (props: PopCreatePageProps) => {
   const catchCopyOption = props.catchCopy.split("・") as Array<string>;
   const popSize = { width: "1536", height: "1024" };
@@ -75,6 +99,20 @@ const PopCreatePage = (props: PopCreatePageProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [responseMessage, setResponseMessage] = useState<string | null>(null);
   const [isError, setIsError] = useState(false);
+
+  // タイマー用のstate
+  const [elapsedTime, setElapsedTime] = useState(0);
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (isLoading) {
+      setElapsedTime(0);
+      interval = setInterval(() => {
+        setElapsedTime((prev) => prev + 1);
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [isLoading]);
 
   const handleCreatePop = async () => {
     setIsLoading(true);
@@ -155,24 +193,25 @@ ${
   };
 
   return (
-    <Container>
-      <Box
-        sx={{
-          my: 4,
-          p: 3,
-          minWidth: 600,
-          borderRadius: 2,
-          bgcolor: "background.paper",
-          position: "relative",
-        }}
-      >
-        <Typography variant="h4" component="h1" gutterBottom align="center">
-          POP 作成ページ
-        </Typography>
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        gap: 2,
+        p: 1,
+        width: "100%",
+      }}
+    >
+      <Typography variant="h5" component="h1" gutterBottom align="center">
+        POP 作成ページ
+      </Typography>
+
+      {/* 最優先の条件 */}
+      <Paper elevation={3} sx={{ p: 3, borderRadius: 2 }}>
         <Typography
-          variant="h5"
+          variant="h6"
           component="h2"
-          sx={{ textAlign: "start", mt: 3, mb: 2 }}
+          sx={{ textAlign: "start", mb: 2, color: "primary.main" }}
         >
           【最優先の条件】
         </Typography>
@@ -184,14 +223,20 @@ ${
           value={premise}
           onChange={(e) => setPremise(e.target.value)}
         />
+      </Paper>
+
+      <FlowConnector />
+
+      {/* キャッチコピー */}
+      <Paper elevation={3} sx={{ p: 3, borderRadius: 2 }}>
         <Typography
-          variant="h5"
+          variant="h6"
           component="h2"
-          sx={{ textAlign: "start", mt: 3, mb: 2 }}
+          sx={{ textAlign: "start", mb: 2, color: "primary.main" }}
         >
           【キャッチコピー】
         </Typography>
-        <Box sx={{ display: "flex", gap: 2, mb: 4 }}>
+        <Box sx={{ display: "flex", gap: 2, mb: 3, flexWrap: "wrap" }}>
           <PositionSelecter
             value={catchCopyPostition}
             onChange={(event) => setCatchCopyPostition(event.target.value)}
@@ -201,7 +246,14 @@ ${
             onChange={(event) => setCatchCopySize(event.target.value)}
           />
         </Box>
-        <Box sx={{ display: "flex", gap: 2, mb: 4 }}>
+        <Box
+          sx={{
+            display: "flex",
+            gap: 2,
+            mb: 1,
+            flexDirection: { xs: "column", sm: "row" },
+          }}
+        >
           <FormControl fullWidth>
             <InputLabel id="demo-simple-select-label">
               キャッチコピー
@@ -215,7 +267,11 @@ ${
               sx={{ textAlign: "left" }}
             >
               {catchCopyOption.map((value) => {
-                return <MenuItem value={value}>{value}</MenuItem>;
+                return (
+                  <MenuItem key={value} value={value}>
+                    {value}
+                  </MenuItem>
+                );
               })}
             </Select>
           </FormControl>
@@ -226,12 +282,20 @@ ${
             onChange={(e) => setCatchCopy(e.target.value)}
           />
         </Box>
-        <Box sx={{ display: "flex", gap: 2, mb: 4 }}>
-          <Typography variant="h5" component="h2" sx={{ textAlign: "start" }}>
-            【本の内容】
-          </Typography>
-        </Box>
-        <Box sx={{ display: "flex", gap: 2, mb: 4 }}>
+      </Paper>
+
+      <FlowConnector />
+
+      {/* 本の内容 */}
+      <Paper elevation={3} sx={{ p: 3, borderRadius: 2 }}>
+        <Typography
+          variant="h6"
+          component="h2"
+          sx={{ textAlign: "start", mb: 2, color: "primary.main" }}
+        >
+          【本の内容】
+        </Typography>
+        <Box sx={{ display: "flex", gap: 2, mb: 3, flexWrap: "wrap" }}>
           <PositionSelecter
             value={synopsisPostition}
             onChange={(event) => setSynopsisPostition(event.target.value)}
@@ -241,7 +305,7 @@ ${
             onChange={(event) => setSynopsisSize(event.target.value)}
           />
         </Box>
-        <Box sx={{ display: "block", gap: 2, mb: 4 }}>
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
           <Box sx={{ mt: 2 }}>
             <TextField
               fullWidth
@@ -279,15 +343,20 @@ ${
             />
           </Box>
         </Box>
+      </Paper>
 
-        <Box sx={{ display: "flex", flexDirection: "column", mb: 4 }}>
-          <Typography
-            variant="h5"
-            component="h2"
-            sx={{ textAlign: "start", mt: 4, mb: 2 }}
-          >
-            【イラスト要素】
-          </Typography>
+      <FlowConnector />
+
+      {/* イラスト要素 */}
+      <Paper elevation={3} sx={{ p: 3, borderRadius: 2 }}>
+        <Typography
+          variant="h6"
+          component="h2"
+          sx={{ textAlign: "start", mb: 2, color: "primary.main" }}
+        >
+          【イラスト要素】
+        </Typography>
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
           <TextField
             fullWidth
             multiline
@@ -295,146 +364,175 @@ ${
             value={illustrationElements}
             onChange={(e) => setIllustrationElements(e.target.value)}
           />
-          <br />
           <TextField
             fullWidth
             multiline
-            minRows={6}
+            minRows={4}
             label="スタイル"
             value={style}
             onChange={(e) => setStyle(e.target.value)}
           />
         </Box>
+      </Paper>
 
+      <FlowConnector />
+
+      {/* オプション機能 */}
+      <Paper elevation={3} sx={{ p: 3, borderRadius: 2 }}>
         <Typography
-          variant="h5"
+          variant="h6"
           component="h2"
-          sx={{ textAlign: "start", mt: 3, mb: 2 }}
+          sx={{ textAlign: "start", mb: 1, color: "primary.main" }}
         >
           【オプション機能】
         </Typography>
-        <Typography sx={{ textAlign: "start", mt: 3, mb: 2 }}>
+        <Typography
+          sx={{
+            textAlign: "start",
+            mb: 2,
+            color: "text.secondary",
+            fontSize: "0.9rem",
+          }}
+        >
           <span>※使いたいときだけ有効化</span>
         </Typography>
-        <Box sx={{ display: "flex", mt: 4, alignItems: "center" }}>
-          <FormControlLabel
-            control={
-              <Switch
-                onChange={(_, checked) => {
-                  setIsEmotionalPhrases(checked);
-                }}
-              />
-            }
-            label="【感情フレーズ】"
-          />
-        </Box>
-        {isEmotionalPhrases && (
-          <div>
-            <Box sx={{ display: "flex", gap: 2, mb: 4 }}>
-              <PositionSelecter
-                value={emotionalPhrasesPostition}
-                onChange={(event) =>
-                  setEmotionalPhrasesPostition(event.target.value)
-                }
-                disabled={!isEmotionalPhrases}
-              />
-              <SizeSelecter
-                value={emotionalPhrasesSize}
-                onChange={(event) =>
-                  setEmotionalPhrasesSize(event.target.value)
-                }
-                disabled={!isEmotionalPhrases}
-              />
-            </Box>
-            <Box sx={{ display: "flex", gap: 2, mb: 4 }}>
-              <TextField
-                fullWidth
-                label="感情フレーズ"
-                value={emotionalPhrases}
-                onChange={(e) => setEmotionalPhrases(e.target.value)}
-                disabled={!isEmotionalPhrases}
-              />
-            </Box>
-          </div>
-        )}
 
-        <Box sx={{ display: "flex", mt: 4, alignItems: "center" }}>
-          <FormControlLabel
-            control={
-              <Switch
-                onChange={(_, checked) => {
-                  setIsSignature(checked);
-                }}
-              />
-            }
-            label="【署名】"
-          />
+        {/* 感情フレーズ */}
+        <Box sx={{ mt: 2 }}>
+          <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+            <FormControlLabel
+              control={
+                <Switch
+                  onChange={(_, checked) => {
+                    setIsEmotionalPhrases(checked);
+                  }}
+                />
+              }
+              label="【感情フレーズ】"
+            />
+          </Box>
+          {isEmotionalPhrases && (
+            <Box sx={{ pl: 2, borderLeft: "2px solid #333", mb: 3 }}>
+              <Box sx={{ display: "flex", gap: 2, mb: 2, flexWrap: "wrap" }}>
+                <PositionSelecter
+                  value={emotionalPhrasesPostition}
+                  onChange={(event) =>
+                    setEmotionalPhrasesPostition(event.target.value)
+                  }
+                  disabled={!isEmotionalPhrases}
+                />
+                <SizeSelecter
+                  value={emotionalPhrasesSize}
+                  onChange={(event) =>
+                    setEmotionalPhrasesSize(event.target.value)
+                  }
+                  disabled={!isEmotionalPhrases}
+                />
+              </Box>
+              <Box sx={{ display: "flex", gap: 2 }}>
+                <TextField
+                  fullWidth
+                  label="感情フレーズ"
+                  value={emotionalPhrases}
+                  onChange={(e) => setEmotionalPhrases(e.target.value)}
+                  disabled={!isEmotionalPhrases}
+                />
+              </Box>
+            </Box>
+          )}
         </Box>
-        {isSignature && (
-          <div>
-            <Box sx={{ display: "flex", gap: 2, mb: 4 }}>
-              <PositionSelecter
-                value={signaturePostition}
-                onChange={(event) => setSignaturePostition(event.target.value)}
-                disabled={!isSignature}
-              />
-              <SizeSelecter
-                value={signatureSize}
-                onChange={(event) => setSignatureSize(event.target.value)}
-                disabled={!isSignature}
-              />
-            </Box>
-            <Box sx={{ display: "flex", mt: 4, alignItems: "center" }}>
-              <TextField
-                fullWidth
-                label="署名"
-                value={signature}
-                onChange={(e) => setSignature(e.target.value)}
-                disabled={!isSignature}
-              />
-            </Box>
-          </div>
-        )}
 
-        <Box sx={{ display: "flex", mt: 4, alignItems: "center" }}>
-          <FormControlLabel
-            control={
-              <Switch
-                onChange={(_, checked) => {
-                  setIsPublisher(checked);
-                }}
-              />
-            }
-            label="【出版社】"
-          />
+        {/* 署名 */}
+        <Box sx={{ mt: 2 }}>
+          <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+            <FormControlLabel
+              control={
+                <Switch
+                  onChange={(_, checked) => {
+                    setIsSignature(checked);
+                  }}
+                />
+              }
+              label="【署名】"
+            />
+          </Box>
+          {isSignature && (
+            <Box sx={{ pl: 2, borderLeft: "2px solid #333", mb: 3 }}>
+              <Box sx={{ display: "flex", gap: 2, mb: 2, flexWrap: "wrap" }}>
+                <PositionSelecter
+                  value={signaturePostition}
+                  onChange={(event) =>
+                    setSignaturePostition(event.target.value)
+                  }
+                  disabled={!isSignature}
+                />
+                <SizeSelecter
+                  value={signatureSize}
+                  onChange={(event) => setSignatureSize(event.target.value)}
+                  disabled={!isSignature}
+                />
+              </Box>
+              <Box sx={{ display: "flex", alignItems: "center" }}>
+                <TextField
+                  fullWidth
+                  label="署名"
+                  value={signature}
+                  onChange={(e) => setSignature(e.target.value)}
+                  disabled={!isSignature}
+                />
+              </Box>
+            </Box>
+          )}
         </Box>
-        {isPublisher && (
-          <div>
-            <Box sx={{ display: "flex", gap: 2, mb: 4 }}>
-              <PositionSelecter
-                value={publisherPostition}
-                onChange={(event) => setPublisherPostition(event.target.value)}
-                disabled={!isPublisher}
-              />
-              <SizeSelecter
-                value={publisherSize}
-                onChange={(event) => setPublisherSize(event.target.value)}
-                disabled={!isPublisher}
-              />
-            </Box>
-            <Box sx={{ display: "flex", gap: 2, mb: 4 }}>
-              <TextField
-                fullWidth
-                label="出版社"
-                value={publisher}
-                onChange={(e) => setPublisher(e.target.value)}
-                disabled={!isPublisher}
-              />
-            </Box>
-          </div>
-        )}
 
-        <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
+        {/* 出版社 */}
+        <Box sx={{ mt: 2 }}>
+          <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+            <FormControlLabel
+              control={
+                <Switch
+                  onChange={(_, checked) => {
+                    setIsPublisher(checked);
+                  }}
+                />
+              }
+              label="【出版社】"
+            />
+          </Box>
+          {isPublisher && (
+            <Box sx={{ pl: 2, borderLeft: "2px solid #333" }}>
+              <Box sx={{ display: "flex", gap: 2, mb: 2, flexWrap: "wrap" }}>
+                <PositionSelecter
+                  value={publisherPostition}
+                  onChange={(event) =>
+                    setPublisherPostition(event.target.value)
+                  }
+                  disabled={!isPublisher}
+                />
+                <SizeSelecter
+                  value={publisherSize}
+                  onChange={(event) => setPublisherSize(event.target.value)}
+                  disabled={!isPublisher}
+                />
+              </Box>
+              <Box sx={{ display: "flex", gap: 2 }}>
+                <TextField
+                  fullWidth
+                  label="出版社"
+                  value={publisher}
+                  onChange={(e) => setPublisher(e.target.value)}
+                  disabled={!isPublisher}
+                />
+              </Box>
+            </Box>
+          )}
+        </Box>
+      </Paper>
+
+      <FlowConnector />
+
+      <Paper elevation={3} sx={{ p: 4, borderRadius: 2, textAlign: "center" }}>
+        <Box sx={{ display: "flex", justifyContent: "center" }}>
           <Button
             variant="contained"
             color="primary"
@@ -445,6 +543,21 @@ ${
           </Button>
         </Box>
 
+        {isLoading && (
+          <Box sx={{ width: "100%", mt: 3, maxWidth: 600, mx: "auto" }}>
+            <LinearProgress
+              variant="determinate"
+              value={Math.min((elapsedTime / 60) * 100, 100)}
+              sx={{ height: 10, borderRadius: 5 }}
+            />
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+              {elapsedTime <= 60
+                ? `生成中... 平均作成時間は約1分です (${elapsedTime}秒経過)`
+                : `生成に時間がかかっています。もうしばらくお待ちください... (${elapsedTime}秒経過)`}
+            </Typography>
+          </Box>
+        )}
+
         {responseMessage && (
           <Box sx={{ mt: 3 }}>
             <Alert severity={isError ? "error" : "success"}>
@@ -452,8 +565,8 @@ ${
             </Alert>
           </Box>
         )}
-      </Box>
-    </Container>
+      </Paper>
+    </Box>
   );
 };
 

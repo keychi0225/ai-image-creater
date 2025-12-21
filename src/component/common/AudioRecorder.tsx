@@ -1,4 +1,15 @@
 import React, { useState, useRef } from "react";
+import {
+  Box,
+  Button,
+  Typography,
+  Paper,
+  CircularProgress,
+  Alert,
+  Stack,
+} from "@mui/material";
+import { Mic, Stop, CloudUpload, Delete } from "@mui/icons-material";
+import { keyframes } from "@emotion/react";
 
 // MediaRecorderとStreamの参照を保持するための型
 type MediaRecorderRef = React.MutableRefObject<MediaRecorder | null>;
@@ -7,6 +18,19 @@ type MediaStreamRef = React.MutableRefObject<MediaStream | null>;
 type AudioRecorderProps = {
   OnChange: (args: string) => void;
 };
+
+// 録音中のパルスアニメーション
+const pulseAnimation = keyframes`
+  0% {
+    box-shadow: 0 0 0 0 rgba(255, 0, 85, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 15px rgba(255, 0, 85, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 0, 85, 0);
+  }
+`;
 
 /**
  * 音声録音とAPI送信を行うコンポーネント
@@ -17,10 +41,16 @@ const AudioRecorder = (props: AudioRecorderProps) => {
   const mediaRecorderRef: MediaRecorderRef = useRef(null);
   const mediaStreamRef: MediaStreamRef = useRef(null);
   const audioChunksRef = useRef<Blob[]>([]);
+  const [isSending, setIsSending] = useState<boolean>(false);
+  const [statusMessage, setStatusMessage] = useState<{
+    type: "success" | "error" | "info";
+    text: string;
+  } | null>(null);
+
   // 1. 録音を開始する関数
   const startRecording = async () => {
     if (isRecording) return;
-
+    setStatusMessage(null);
     try {
       // マイクへのアクセス許可を取得
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -47,7 +77,10 @@ const AudioRecorder = (props: AudioRecorderProps) => {
       console.log("録音を開始しました。");
     } catch (err) {
       console.error("マイクへのアクセスに失敗しました:", err);
-      alert("マイクへのアクセスが必要です。");
+      setStatusMessage({
+        type: "error",
+        text: "マイクへのアクセスが必要です。",
+      });
     }
   };
 
@@ -69,10 +102,12 @@ const AudioRecorder = (props: AudioRecorderProps) => {
   // 3. 録音データをAPIにPOST送信する関数
   const sendAudio = async () => {
     if (!audioBlob) {
-      alert("録音データがありません。");
+      setStatusMessage({ type: "error", text: "録音データがありません。" });
       return;
     }
 
+    setIsSending(true);
+    setStatusMessage(null);
     const API_ENDPOINT = "https://convert-audio-64fgxin3kq-uc.a.run.app"; // 実際のエンドポイントに置き換えてください
     const formData = new FormData();
 
@@ -94,84 +129,143 @@ const AudioRecorder = (props: AudioRecorderProps) => {
             "音声入力は失敗しました、もう一度お試し下さい。"
         );
         if (result.transcription) {
-          alert("音声データを正常に送信しました！");
+          setStatusMessage({
+            type: "success",
+            text: "音声データを正常に送信しました！",
+          });
         } else {
-          alert(`送信に失敗しました: ${response.statusText}`);
+          setStatusMessage({
+            type: "error",
+            text: `送信に失敗しました: ${response.statusText}`,
+          });
         }
 
         // 成功後の状態リセット
         setAudioBlob(null);
       } else {
         console.error("送信エラー:", response.status, response.statusText);
-        alert(`送信に失敗しました: ${response.statusText}`);
+        setStatusMessage({
+          type: "error",
+          text: `送信に失敗しました: ${response.statusText}`,
+        });
       }
     } catch (error) {
       console.error("Fetchエラー:", error);
-      alert("ネットワークエラーにより送信に失敗しました。");
+      setStatusMessage({
+        type: "error",
+        text: "ネットワークエラーにより送信に失敗しました。",
+      });
+    } finally {
+      setIsSending(false);
     }
   };
 
+  const handleReset = () => {
+    setAudioBlob(null);
+    setStatusMessage(null);
+  };
+
   return (
-    <div
-      style={{
+    <Paper
+      elevation={3}
+      sx={{
         display: "flex",
         flexDirection: "column",
-        gap: "10px",
-        maxWidth: "300px",
+        gap: 3,
+        p: 4,
+        borderRadius: 2,
+        alignItems: "center",
+        border: "1px solid rgba(0, 242, 255, 0.2)",
+        background: "rgba(10, 14, 23, 0.6)",
       }}
     >
-      <h3>🎤 音声録音＆送信</h3>
+      <Typography variant="h6" sx={{ color: "primary.main" }}>
+        🎤 音声録音＆送信
+      </Typography>
 
-      {/* 録音ボタン */}
-      <button
-        onClick={startRecording}
-        disabled={isRecording}
-        style={{
-          padding: "10px",
-          backgroundColor: isRecording ? "#ccc" : "green",
-          color: "white",
-        }}
-      >
-        {isRecording ? "録音中..." : "🔴 録音開始"}
-      </button>
+      <Box sx={{ display: "flex", gap: 2, justifyContent: "center" }}>
+        {!isRecording ? (
+          <Button
+            variant="contained"
+            color="error"
+            startIcon={<Mic />}
+            onClick={startRecording}
+            disabled={isSending || !!audioBlob}
+            sx={{
+              borderRadius: "50px",
+              px: 4,
+              py: 1.5,
+            }}
+          >
+            録音開始
+          </Button>
+        ) : (
+          <Button
+            variant="contained"
+            color="secondary"
+            startIcon={<Stop />}
+            onClick={stopRecording}
+            sx={{
+              borderRadius: "50px",
+              px: 4,
+              py: 1.5,
+              animation: `${pulseAnimation} 1.5s infinite`,
+            }}
+          >
+            録音停止
+          </Button>
+        )}
+      </Box>
 
-      {/* 停止ボタン */}
-      <button
-        onClick={stopRecording}
-        disabled={!isRecording}
-        style={{
-          padding: "10px",
-          backgroundColor: isRecording ? "red" : "#ccc",
-          color: "white",
-        }}
-      >
-        ■ 録音停止
-      </button>
+      {isRecording && (
+        <Typography variant="body2" color="secondary" sx={{ mt: -1 }}>
+          録音中...
+        </Typography>
+      )}
 
       {/* 録音データの状態表示と再生 */}
       {audioBlob && (
-        <>
-          <p>✅ 録音完了。サイズ: {(audioBlob.size / 1024).toFixed(2)} KB</p>
+        <Box sx={{ width: "100%", textAlign: "center" }}>
+          <Typography variant="body2" sx={{ mb: 1, color: "text.secondary" }}>
+            ✅ 録音完了 ({(audioBlob.size / 1024).toFixed(2)} KB)
+          </Typography>
           <audio
             controls
             src={URL.createObjectURL(audioBlob)}
-            style={{ width: "100%" }}
+            style={{ width: "100%", marginBottom: "16px" }}
           />
 
-          {/* 送信ボタン */}
-          <button
-            onClick={sendAudio}
-            style={{ padding: "10px", backgroundColor: "blue", color: "white" }}
-          >
-            ⬆️ 録音データをAPIに送信
-          </button>
-        </>
+          <Stack direction="row" spacing={2} justifyContent="center">
+            <Button
+              variant="outlined"
+              color="inherit"
+              startIcon={<Delete />}
+              onClick={handleReset}
+              disabled={isSending}
+            >
+              破棄
+            </Button>
+            <Button
+              variant="contained"
+              color="primary"
+              startIcon={
+                isSending ? <CircularProgress size={20} /> : <CloudUpload />
+              }
+              onClick={sendAudio}
+              disabled={isSending}
+            >
+              {isSending ? "送信中..." : "送信して変換"}
+            </Button>
+          </Stack>
+        </Box>
       )}
 
-      {!isRecording && !audioBlob && (
-        <p>ボタンを押して録音を開始してください。</p>
+      {statusMessage && (
+        <Alert severity={statusMessage.type} sx={{ width: "100%" }}>
+          {statusMessage.text}
+        </Alert>
       )}
-    </div>
+    </Paper>
   );
 };
 

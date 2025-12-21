@@ -1,4 +1,11 @@
-import { Alert, Button, CircularProgress } from "@mui/material";
+import {
+  Alert,
+  Button,
+  CircularProgress,
+  Box,
+  Typography,
+  Paper,
+} from "@mui/material";
 import { useState } from "react";
 
 // 自作APIのエンドポイントURLを定義
@@ -53,22 +60,73 @@ const ImageResultPage = (props: ImageResultPageProps) => {
 
   // 3. <img>タグのsrcに直接データURIを設定
   return (
-    <>
-      {dataUri && (
-        <img
-          src={dataUri ?? undefined}
-          alt="Base64から表示された画像"
-          style={{ maxWidth: "100%" }}
-        />
+    <Box
+      sx={{
+        width: "100%",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        gap: 3,
+      }}
+    >
+      {!props.imageName ? (
+        <Paper
+          elevation={3}
+          sx={{
+            p: 5,
+            borderRadius: 2,
+            textAlign: "center",
+            border: "1px dashed rgba(255, 255, 255, 0.2)",
+            backgroundColor: "rgba(0, 0, 0, 0.2)",
+          }}
+        >
+          <Typography variant="h6" color="text.secondary" gutterBottom>
+            まだ画像生成が完了していません
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            前のステップに戻って「POPを作成」ボタンを押してください。
+          </Typography>
+        </Paper>
+      ) : (
+        <>
+          {dataUri && (
+            <Paper
+              elevation={10}
+              sx={{
+                p: 1,
+                borderRadius: 2,
+                border: "2px solid #00f2ff",
+                boxShadow: "0 0 20px rgba(0, 242, 255, 0.4)",
+                overflow: "hidden",
+                maxWidth: "100%",
+              }}
+            >
+              <img
+                src={dataUri}
+                alt="生成されたPOP画像"
+                style={{
+                  maxWidth: "100%",
+                  display: "block",
+                  borderRadius: "4px",
+                }}
+              />
+            </Paper>
+          )}
+          {!isLoading && !dataUri && props.imageName && (
+            <Button
+              variant="contained"
+              onClick={fetchBase64Image}
+              size="large"
+              sx={{ px: 4, py: 1.5 }}
+            >
+              結果確認ボタン
+            </Button>
+          )}
+          {isLoading && <CircularProgress />}
+          {errorMessage && <Alert severity="error">{errorMessage}</Alert>}
+        </>
       )}
-      {!isLoading && (
-        <Button variant="contained" onClick={fetchBase64Image}>
-          結果確認ボタン
-        </Button>
-      )}
-      {isLoading && <CircularProgress />}
-      {errorMessage && <Alert color="error">{errorMessage}</Alert>}
-    </>
+    </Box>
   );
 };
 

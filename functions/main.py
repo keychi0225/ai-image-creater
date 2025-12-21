@@ -109,6 +109,10 @@ def hello_world(req: https_fn.Request) -> https_fn.Response:
 
 @https_fn.on_request(timeout_sec=300, secrets=['OPENAI_KEY'])
 def generate_and_save_image(req: https_fn.Request) -> https_fn.Response:
+    
+    if req.method == 'OPTIONS':
+        return create_response(jsonify({"message": "options"}))
+
     # URLクエリパラメータからプロンプトを取得
     prompt = req.args.get('prompt')
     size = req.args.get('size')

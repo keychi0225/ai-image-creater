@@ -53,7 +53,18 @@ export default function HomeStepper() {
         })}
       </Stepper>
       <div>
-        <Paper sx={{ m: 4 }} elevation={3}>
+        <Paper
+          sx={{
+            m: 4,
+            p: { xs: 2, md: 4 },
+            background: "rgba(17, 22, 37, 0.6)", // 半透明のダークな背景
+            backdropFilter: "blur(12px)", // すりガラス効果
+            border: "1px solid rgba(0, 242, 255, 0.15)", // 薄いネオンシアンのボーダー
+            boxShadow: "0 8px 32px 0 rgba(0, 0, 0, 0.37)", // 深い影
+            borderRadius: "16px",
+          }}
+          elevation={0}
+        >
           {activeStep == 0 && (
             <TextChat onChange={setThoughts} onSyncCatchCopy={setCatchCopy} />
           )}
@@ -78,7 +89,7 @@ export default function HomeStepper() {
               </Button>
             )}
             <Box sx={{ flex: "1 1 auto" }} />
-            {!isLoading && (
+            {!isLoading && activeStep !== 2 && (
               <Button sx={{ m: 4 }} variant="contained" onClick={handleNext}>
                 {activeStep === steps.length - 1 ? "Finish" : "Next"}
               </Button>

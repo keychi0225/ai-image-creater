@@ -21,7 +21,6 @@ import {
 } from "@mui/icons-material";
 import { useDropzone } from "react-dropzone";
 import AudioRecorder from "../component/common/AudioRecorder";
-import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 
 // APIからのレスポンスの型を定義
 interface ApiResponse {
@@ -34,6 +33,29 @@ interface TextChatProps {
   onChange: (csvStr: string) => void;
   onSyncCatchCopy: (catchCopy: string) => void;
 }
+
+// 近未来的な接続ラインコンポーネント
+const FlowConnector = () => (
+  <Box
+    sx={{
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      my: 1,
+    }}
+  >
+    <Box
+      sx={{
+        width: "2px",
+        height: "40px",
+        background:
+          "linear-gradient(180deg, rgba(0,242,255,0) 0%, rgba(0,242,255,1) 50%, rgba(0,242,255,0) 100%)",
+        boxShadow: "0 0 8px rgba(0, 242, 255, 0.6)",
+      }}
+    />
+  </Box>
+);
+
 const TextChat: React.FC<TextChatProps> = (props: TextChatProps) => {
   const inputText = `1.短く直感的（8～15文字）
 2.友達に話したくなる／笑える／驚く要素を1つ入れる
@@ -212,21 +234,31 @@ const TextChat: React.FC<TextChatProps> = (props: TextChatProps) => {
               {...getRootProps()}
               sx={{
                 border: "2px dashed",
-                borderColor: isDragActive ? "primary.main" : "grey.400",
+                borderColor: isDragActive
+                  ? "primary.main"
+                  : "rgba(255, 255, 255, 0.2)",
                 borderRadius: 2,
                 p: 4,
                 mb: 3,
-                backgroundColor: isDragActive ? "primary.light" : "grey.50",
-                transition: "background-color 0.3s ease-in-out",
+                backgroundColor: isDragActive
+                  ? "rgba(0, 242, 255, 0.1)"
+                  : "rgba(0, 0, 0, 0.2)",
+                transition: "all 0.3s ease-in-out",
                 cursor: "pointer",
                 "&:hover": {
-                  borderColor: "primary.dark",
+                  borderColor: "primary.main",
+                  backgroundColor: "rgba(0, 242, 255, 0.05)",
+                  boxShadow: "0 0 10px rgba(0, 242, 255, 0.2)",
                 },
               }}
             >
               <input {...getInputProps()} />
               <CloudUploadIcon
-                sx={{ fontSize: 60, color: "grey.500", mb: 1 }}
+                sx={{
+                  fontSize: 60,
+                  color: isDragActive ? "primary.main" : "text.secondary",
+                  mb: 1,
+                }}
               />
               {isDragActive ? (
                 <Typography variant="h6" color="primary.main">
@@ -248,18 +280,18 @@ const TextChat: React.FC<TextChatProps> = (props: TextChatProps) => {
                   mb: 3,
                   p: 2,
                   border: "1px solid",
-                  borderColor: "grey.300",
+                  borderColor: "rgba(0, 242, 255, 0.3)",
                   borderRadius: 1,
-                  backgroundColor: "background.paper",
+                  backgroundColor: "rgba(0, 242, 255, 0.05)",
                 }}
               >
                 <Typography
                   variant="subtitle1"
                   component="p"
-                  sx={{ fontWeight: "medium" }}
+                  sx={{ fontWeight: "medium", color: "text.primary" }}
                 >
                   選択されたファイル:{" "}
-                  <span style={{ color: "primary.dark" }}>
+                  <span style={{ color: "#00f2ff", fontWeight: "bold" }}>
                     {selectedFile.name}
                   </span>{" "}
                   ({(selectedFile.size / 1024).toFixed(2)} KB)
@@ -289,7 +321,7 @@ const TextChat: React.FC<TextChatProps> = (props: TextChatProps) => {
           </Box>
         )}
       </Paper>
-      <ArrowDownwardIcon />
+      <FlowConnector />
       {/* プロンプト */}
       <Paper
         elevation={3}
@@ -304,7 +336,7 @@ const TextChat: React.FC<TextChatProps> = (props: TextChatProps) => {
         <br />
         {csvStr == "" ? null : csvStr}
       </Paper>
-      <ArrowDownwardIcon />
+      <FlowConnector />
       <Paper sx={{ p: 4 }} elevation={3}>
         <span>読みこんだらボタンが表示されるよ</span>
         <br />
@@ -327,7 +359,7 @@ const TextChat: React.FC<TextChatProps> = (props: TextChatProps) => {
           </Button>
         )}
       </Paper>
-      <ArrowDownwardIcon />
+      <FlowConnector />
       {/* APIレスポンス表示（Snackbarで通知） */}
       {csvStr != "" && (
         <Snackbar
