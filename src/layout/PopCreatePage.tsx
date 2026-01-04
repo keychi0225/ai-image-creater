@@ -39,11 +39,12 @@ const FlowConnector = () => (
   >
     <Box
       sx={{
-        width: "2px",
-        height: "40px",
+        width: "6px",
+        height: "30px",
+        borderRadius: "10px",
         background:
-          "linear-gradient(180deg, rgba(0,242,255,0) 0%, rgba(0,242,255,1) 50%, rgba(0,242,255,0) 100%)",
-        boxShadow: "0 0 8px rgba(0, 242, 255, 0.6)",
+          "linear-gradient(180deg, #FF9A9E 0%, #FECFEF 99%, #FECFEF 100%)",
+        boxShadow: "0 2px 10px rgba(255, 154, 158, 0.5)",
       }}
     />
   </Box>
@@ -207,11 +208,11 @@ ${
       </Typography>
 
       {/* 最優先の条件 */}
-      <Paper elevation={3} sx={{ p: 3, borderRadius: 2 }}>
+      <Paper elevation={0} sx={{ p: 3, borderRadius: "16px", border: "3px solid #FFCC80", backgroundColor: "#fff" }}>
         <Typography
           variant="h6"
           component="h2"
-          sx={{ textAlign: "start", mb: 2, color: "primary.main" }}
+          sx={{ textAlign: "start", mb: 2, color: "#E65100", fontWeight: "bold" }}
         >
           【最優先の条件】
         </Typography>
@@ -228,11 +229,11 @@ ${
       <FlowConnector />
 
       {/* キャッチコピー */}
-      <Paper elevation={3} sx={{ p: 3, borderRadius: 2 }}>
+      <Paper elevation={0} sx={{ p: 3, borderRadius: "16px", border: "3px solid #FFCC80", backgroundColor: "#fff" }}>
         <Typography
           variant="h6"
           component="h2"
-          sx={{ textAlign: "start", mb: 2, color: "primary.main" }}
+          sx={{ textAlign: "start", mb: 2, color: "#E65100", fontWeight: "bold" }}
         >
           【キャッチコピー】
         </Typography>
@@ -287,11 +288,11 @@ ${
       <FlowConnector />
 
       {/* 本の内容 */}
-      <Paper elevation={3} sx={{ p: 3, borderRadius: 2 }}>
+      <Paper elevation={0} sx={{ p: 3, borderRadius: "16px", border: "3px solid #FFCC80", backgroundColor: "#fff" }}>
         <Typography
           variant="h6"
           component="h2"
-          sx={{ textAlign: "start", mb: 2, color: "primary.main" }}
+          sx={{ textAlign: "start", mb: 2, color: "#E65100", fontWeight: "bold" }}
         >
           【本の内容】
         </Typography>
@@ -348,11 +349,11 @@ ${
       <FlowConnector />
 
       {/* イラスト要素 */}
-      <Paper elevation={3} sx={{ p: 3, borderRadius: 2 }}>
+      <Paper elevation={0} sx={{ p: 3, borderRadius: "16px", border: "3px solid #FFCC80", backgroundColor: "#fff" }}>
         <Typography
           variant="h6"
           component="h2"
-          sx={{ textAlign: "start", mb: 2, color: "primary.main" }}
+          sx={{ textAlign: "start", mb: 2, color: "#E65100", fontWeight: "bold" }}
         >
           【イラスト要素】
         </Typography>
@@ -378,11 +379,11 @@ ${
       <FlowConnector />
 
       {/* オプション機能 */}
-      <Paper elevation={3} sx={{ p: 3, borderRadius: 2 }}>
+      <Paper elevation={0} sx={{ p: 3, borderRadius: "16px", border: "3px solid #FFCC80", backgroundColor: "#fff" }}>
         <Typography
           variant="h6"
           component="h2"
-          sx={{ textAlign: "start", mb: 1, color: "primary.main" }}
+          sx={{ textAlign: "start", mb: 1, color: "#E65100", fontWeight: "bold" }}
         >
           【オプション機能】
         </Typography>
@@ -390,7 +391,7 @@ ${
           sx={{
             textAlign: "start",
             mb: 2,
-            color: "text.secondary",
+            color: "#5D4037",
             fontSize: "0.9rem",
           }}
         >
@@ -531,13 +532,14 @@ ${
 
       <FlowConnector />
 
-      <Paper elevation={3} sx={{ p: 4, borderRadius: 2, textAlign: "center" }}>
+      <Paper elevation={0} sx={{ p: 4, borderRadius: "16px", border: "3px solid #FFCC80", backgroundColor: "#fff", textAlign: "center" }}>
         <Box sx={{ display: "flex", justifyContent: "center" }}>
           <Button
             variant="contained"
             color="primary"
             onClick={handleCreatePop}
             disabled={isLoading}
+            sx={{ borderRadius: "50px", backgroundColor: "#FF4081", fontWeight: "bold", px: 5, py: 1.5 }}
           >
             {isLoading ? <CircularProgress size={24} /> : "POP を作成"}
           </Button>

@@ -16,38 +16,37 @@ import ClearVoteModal from "../component/ClearVoteModal";
 import VoteSystemButton from "../component/VoteSystemButton";
 import HomeStepper from "../layout/HomeStepper";
 
-// ダークテーマを定義
-const darkTheme = createTheme({
+// 子供向けテーマ（淡い黄色ベース）を定義
+const kidsTheme = createTheme({
   palette: {
-    mode: "dark",
+    mode: "light",
     background: {
-      default: "#0a0e17", // 深い紺色/黒
-      paper: "#111625", // 少し明るい紺色
+      default: "#FFF8E1", // 淡い黄色
+      paper: "#FFFFFF",
     },
     primary: {
-      main: "#00f2ff", // サイバーパンクなシアン
+      main: "#FF4081", // ピンク
     },
     secondary: {
-      main: "#ff0055", // ネオンピンク
+      main: "#FF9800", // オレンジ
     },
     text: {
-      primary: "#e0f7fa",
-      secondary: "#b2ebf2",
+      primary: "#5D4037", // 濃い茶色
+      secondary: "#8D6E63", // 薄い茶色
     },
   },
   typography: {
-    fontFamily: '"Roboto Mono", "Consolas", "Monaco", monospace', // プログラムっぽい等幅フォント
+    fontFamily: '"M PLUS Rounded 1c", "Hiragino Maru Gothic ProN", "Quicksand", sans-serif',
     h6: {
       fontWeight: 700,
-      letterSpacing: ".15rem",
-      textTransform: "uppercase",
+      color: "#E65100",
     },
   },
   components: {
     MuiButton: {
       styleOverrides: {
         root: {
-          borderRadius: 2, // 少し角ばらせる
+          borderRadius: "50px", // 丸みを持たせる
           textTransform: "none",
           fontWeight: "bold",
         },
@@ -70,7 +69,8 @@ function HomePage() {
     width: "80%",
     maxWidth: 800,
     bgcolor: "background.paper",
-    border: "1px solid #00f2ff", // テーマカラーに合わせる
+    border: "4px solid #FFCC80", // テーマカラーに合わせる
+    borderRadius: "24px",
     boxShadow: 24,
     p: 4,
     maxHeight: "90vh",
@@ -78,15 +78,14 @@ function HomePage() {
   };
 
   return (
-    <ThemeProvider theme={darkTheme}>
+    <ThemeProvider theme={kidsTheme}>
       <CssBaseline />
       <Box
         sx={{
           display: "flex",
           flexDirection: "column",
           minHeight: "100vh",
-          background:
-            "radial-gradient(circle at 50% -20%, #1a2c4e 0%, #0a0e17 100%)", // 近未来的な背景グラデーション
+          backgroundColor: "background.default",
         }}
       >
         <AppBar
@@ -95,7 +94,8 @@ function HomePage() {
           elevation={0}
           sx={{
             backdropFilter: "blur(10px)",
-            borderBottom: "1px solid rgba(0, 242, 255, 0.1)",
+            borderBottom: "2px solid #FFECB3",
+            backgroundColor: "rgba(255, 248, 225, 0.8)",
           }}
         >
           <Toolbar sx={{ justifyContent: "space-between" }}>
@@ -103,8 +103,8 @@ function HomePage() {
               variant="h6"
               component="div"
               sx={{
-                color: "primary.main",
-                textShadow: "0 0 10px rgba(0, 242, 255, 0.5)",
+                color: "#E65100",
+                fontWeight: "bold",
               }}
             >
               PopCreate
@@ -113,8 +113,8 @@ function HomePage() {
               <Button
                 onClick={handleRankingOpen}
                 variant="outlined"
-                color="inherit"
-                sx={{ borderColor: "rgba(255,255,255,0.3)" }}
+                color="primary"
+                sx={{ borderColor: "#FF4081", color: "#FF4081", backgroundColor: "#fff" }}
               >
                 ランキングを表示
               </Button>

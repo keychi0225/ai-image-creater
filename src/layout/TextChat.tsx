@@ -41,16 +41,17 @@ const FlowConnector = () => (
       display: "flex",
       justifyContent: "center",
       alignItems: "center",
-      my: 1,
+      my: 2,
     }}
   >
     <Box
       sx={{
-        width: "2px",
-        height: "40px",
+        width: "6px",
+        height: "30px",
+        borderRadius: "10px",
         background:
-          "linear-gradient(180deg, rgba(0,242,255,0) 0%, rgba(0,242,255,1) 50%, rgba(0,242,255,0) 100%)",
-        boxShadow: "0 0 8px rgba(0, 242, 255, 0.6)",
+          "linear-gradient(180deg, #FF9A9E 0%, #FECFEF 99%, #FECFEF 100%)",
+        boxShadow: "0 2px 10px rgba(255, 154, 158, 0.5)",
       }}
     />
   </Box>
@@ -175,13 +176,24 @@ const TextChat: React.FC<TextChatProps> = (props: TextChatProps) => {
       sx={{
         display: "flex",
         flexDirection: "column",
-        gap: 2,
-        p: 3,
+        gap: 3,
+        p: 4,
         minWidth: 600,
         margin: "0 auto",
       }}
     >
-      <Typography variant="h5" component="h1" gutterBottom>
+      <Typography
+        variant="h4"
+        component="h1"
+        gutterBottom
+        sx={{
+          fontWeight: "bold",
+          color: "#E65100",
+          textAlign: "center",
+          letterSpacing: "0.05em",
+          textShadow: "2px 2px 0px rgba(0,0,0,0.05)",
+        }}
+      >
         キャッチコピー生成コーナー
       </Typography>
 
@@ -195,7 +207,16 @@ const TextChat: React.FC<TextChatProps> = (props: TextChatProps) => {
         value={inputText}
         onChange={handleInputChange}
       /> */}
-      <Paper elevation={3} sx={{ p: 2, borderRadius: 2, textAlign: "start" }}>
+      <Paper
+        elevation={0}
+        sx={{
+          p: 3,
+          borderRadius: "16px",
+          textAlign: "start",
+          border: "3px solid #FFCC80",
+          backgroundColor: "#fff",
+        }}
+      >
         <FormControl>
           <FormLabel id="create-text--radio-buttons-group-label">
             入力モード切替
@@ -233,22 +254,22 @@ const TextChat: React.FC<TextChatProps> = (props: TextChatProps) => {
             <Box
               {...getRootProps()}
               sx={{
-                border: "2px dashed",
+                border: "3px dashed",
                 borderColor: isDragActive
-                  ? "primary.main"
-                  : "rgba(255, 255, 255, 0.2)",
-                borderRadius: 2,
+                  ? "#FF4081"
+                  : "#D7CCC8",
+                borderRadius: "16px",
                 p: 4,
                 mb: 3,
                 backgroundColor: isDragActive
-                  ? "rgba(0, 242, 255, 0.1)"
-                  : "rgba(0, 0, 0, 0.2)",
+                  ? "#FCE4EC"
+                  : "#FFF8E1",
                 transition: "all 0.3s ease-in-out",
                 cursor: "pointer",
                 "&:hover": {
-                  borderColor: "primary.main",
-                  backgroundColor: "rgba(0, 242, 255, 0.05)",
-                  boxShadow: "0 0 10px rgba(0, 242, 255, 0.2)",
+                  borderColor: "#FF4081",
+                  backgroundColor: "#F8BBD0",
+                  boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
                 },
               }}
             >
@@ -256,12 +277,12 @@ const TextChat: React.FC<TextChatProps> = (props: TextChatProps) => {
               <CloudUploadIcon
                 sx={{
                   fontSize: 60,
-                  color: isDragActive ? "primary.main" : "text.secondary",
+                  color: isDragActive ? "#FF4081" : "#A1887F",
                   mb: 1,
                 }}
               />
               {isDragActive ? (
-                <Typography variant="h6" color="primary.main">
+                <Typography variant="h6" sx={{ color: "#FF4081", fontWeight: "bold" }}>
                   ここにファイルをドロップしてください...
                 </Typography>
               ) : (
@@ -279,19 +300,19 @@ const TextChat: React.FC<TextChatProps> = (props: TextChatProps) => {
                 sx={{
                   mb: 3,
                   p: 2,
-                  border: "1px solid",
-                  borderColor: "rgba(0, 242, 255, 0.3)",
-                  borderRadius: 1,
-                  backgroundColor: "rgba(0, 242, 255, 0.05)",
+                  border: "2px solid",
+                  borderColor: "#FFB74D",
+                  borderRadius: "12px",
+                  backgroundColor: "#FFF3E0",
                 }}
               >
                 <Typography
                   variant="subtitle1"
                   component="p"
-                  sx={{ fontWeight: "medium", color: "text.primary" }}
+                  sx={{ fontWeight: "bold", color: "#5D4037" }}
                 >
                   選択されたファイル:{" "}
-                  <span style={{ color: "#00f2ff", fontWeight: "bold" }}>
+                  <span style={{ color: "#D84315", fontWeight: "bold" }}>
                     {selectedFile.name}
                   </span>{" "}
                   ({(selectedFile.size / 1024).toFixed(2)} KB)
@@ -324,10 +345,12 @@ const TextChat: React.FC<TextChatProps> = (props: TextChatProps) => {
       <FlowConnector />
       {/* プロンプト */}
       <Paper
-        elevation={3}
+        elevation={0}
         sx={{
-          p: 2,
-          borderRadius: 2,
+          p: 3,
+          borderRadius: "16px",
+          border: "3px solid #FFF59D",
+          backgroundColor: "#FFFFF0",
           textAlign: "start",
           height: "-webkit-fill-available",
         }}
@@ -337,7 +360,15 @@ const TextChat: React.FC<TextChatProps> = (props: TextChatProps) => {
         {csvStr == "" ? null : csvStr}
       </Paper>
       <FlowConnector />
-      <Paper sx={{ p: 4 }} elevation={3}>
+      <Paper
+        sx={{
+          p: 4,
+          borderRadius: "16px",
+          border: "3px solid #FFCC80",
+          textAlign: "center",
+        }}
+        elevation={0}
+      >
         <span>読みこんだらボタンが表示されるよ</span>
         <br />
         {/* 送信ボタン */}
@@ -347,6 +378,16 @@ const TextChat: React.FC<TextChatProps> = (props: TextChatProps) => {
             color="primary"
             onClick={handleSend}
             disabled={isLoading || !inputText}
+            size="large"
+            sx={{
+              mt: 2,
+              borderRadius: "50px",
+              backgroundColor: "#FF4081",
+              fontWeight: "bold",
+              px: 5,
+              py: 1.5,
+              boxShadow: "0 4px 14px 0 rgba(33, 150, 243, 0.3)",
+            }}
             startIcon={
               isLoading ? (
                 <CircularProgress size={20} color="inherit" />
@@ -380,7 +421,17 @@ const TextChat: React.FC<TextChatProps> = (props: TextChatProps) => {
 
       {/* 問い合わせ結果表示エリア */}
       <Box sx={{ mt: 3 }}>
-        <Paper elevation={3} sx={{ p: 4, borderRadius: 2, textAlign: "start" }}>
+        <Paper
+          elevation={0}
+          sx={{
+            p: 4,
+            borderRadius: "24px",
+            textAlign: "start",
+            backgroundColor: "#FFFFFF",
+            border: "4px solid #FFCC80",
+            boxShadow: "0 4px 10px rgba(0,0,0,0.05)",
+          }}
+        >
           {isLoading && <CircularProgress />}
           {!apiResponse?.success && apiResponse?.reply && (
             <Typography color="error" variant="body1">
@@ -388,7 +439,7 @@ const TextChat: React.FC<TextChatProps> = (props: TextChatProps) => {
             </Typography>
           )}
           {apiResponse && (
-            <Typography sx={{ maxWidth: 600 }} variant="body1">
+            <Typography sx={{ maxWidth: 600, color: "#5D4037" }} variant="body1">
               【コピーの生成案】
               <br />
               <span style={{ wordBreak: "break-all" }}>

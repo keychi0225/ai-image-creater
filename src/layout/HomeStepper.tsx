@@ -57,11 +57,10 @@ export default function HomeStepper() {
           sx={{
             m: 4,
             p: { xs: 2, md: 4 },
-            background: "rgba(17, 22, 37, 0.6)", // 半透明のダークな背景
-            backdropFilter: "blur(12px)", // すりガラス効果
-            border: "1px solid rgba(0, 242, 255, 0.15)", // 薄いネオンシアンのボーダー
-            boxShadow: "0 8px 32px 0 rgba(0, 0, 0, 0.37)", // 深い影
-            borderRadius: "16px",
+            backgroundColor: "#FFF8E1",
+            borderRadius: "24px",
+            boxShadow: "0 10px 40px rgba(0,0,0,0.08)",
+            border: "4px solid #FFECB3",
           }}
           elevation={0}
         >
@@ -83,14 +82,14 @@ export default function HomeStepper() {
                 variant="contained"
                 disabled={activeStep === 0}
                 onClick={handleBack}
-                sx={{ m: 4 }}
+                sx={{ m: 4, borderRadius: "50px", fontWeight: "bold", backgroundColor: "#8D6E63", color: "#fff" }}
               >
                 Back
               </Button>
             )}
             <Box sx={{ flex: "1 1 auto" }} />
             {!isLoading && activeStep !== 2 && (
-              <Button sx={{ m: 4 }} variant="contained" onClick={handleNext}>
+              <Button sx={{ m: 4, borderRadius: "50px", fontWeight: "bold", backgroundColor: "#FF4081" }} variant="contained" onClick={handleNext}>
                 {activeStep === steps.length - 1 ? "Finish" : "Next"}
               </Button>
             )}

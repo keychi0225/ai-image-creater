@@ -71,19 +71,20 @@ const ImageResultPage = (props: ImageResultPageProps) => {
     >
       {!props.imageName ? (
         <Paper
-          elevation={3}
+          elevation={0}
           sx={{
             p: 5,
-            borderRadius: 2,
+            borderRadius: "24px",
             textAlign: "center",
-            border: "1px dashed rgba(255, 255, 255, 0.2)",
-            backgroundColor: "rgba(0, 0, 0, 0.2)",
+            border: "3px dashed #FFB74D",
+            backgroundColor: "#FFF3E0",
+            color: "#5D4037",
           }}
         >
-          <Typography variant="h6" color="text.secondary" gutterBottom>
+          <Typography variant="h6" color="inherit" gutterBottom sx={{ fontWeight: "bold" }}>
             まだ画像生成が完了していません
           </Typography>
-          <Typography variant="body2" color="text.secondary">
+          <Typography variant="body2" color="inherit">
             前のステップに戻って「POPを作成」ボタンを押してください。
           </Typography>
         </Paper>
@@ -91,12 +92,13 @@ const ImageResultPage = (props: ImageResultPageProps) => {
         <>
           {dataUri && (
             <Paper
-              elevation={10}
+              elevation={0}
               sx={{
                 p: 1,
-                borderRadius: 2,
-                border: "2px solid #00f2ff",
-                boxShadow: "0 0 20px rgba(0, 242, 255, 0.4)",
+                borderRadius: "16px",
+                border: "4px solid #FFCC80",
+                boxShadow: "0 10px 40px rgba(0,0,0,0.1)",
+                backgroundColor: "#fff",
                 overflow: "hidden",
                 maxWidth: "100%",
               }}
@@ -117,7 +119,7 @@ const ImageResultPage = (props: ImageResultPageProps) => {
               variant="contained"
               onClick={fetchBase64Image}
               size="large"
-              sx={{ px: 4, py: 1.5 }}
+              sx={{ borderRadius: "50px", backgroundColor: "#FF4081", fontWeight: "bold", px: 5, py: 1.5 }}
             >
               結果確認ボタン
             </Button>
