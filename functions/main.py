@@ -129,6 +129,15 @@ def generate_and_save_image(req: https_fn.Request) -> https_fn.Response:
         api_key_value = OPENAI_KEY.value
         client = OpenAI(api_key=api_key_value)
 
+        # プロンプトが適切か事前にチェック
+        mod_response = client.moderations.create(input=prompt)
+        output = mod_response.results[0]
+
+        if output.flagged:
+            # ここで独自のロジックを入れる（例：少しでも怪しければブロック）
+            print("ポリシー違反の可能性があるため中止します")
+            return create_response(jsonify({"message": "ポリシー違反の可能性があります。別のプロンプトを試してください。"}))
+
         # OpenAI gpt-image-1 APIを呼び出し
         response = client.images.generate(
             model="gpt-image-1",  # ←ここを変更
