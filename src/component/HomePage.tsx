@@ -1,5 +1,6 @@
 import Ranking from "../component/Ranking";
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import {
   Box,
   Button,
@@ -36,7 +37,8 @@ const kidsTheme = createTheme({
     },
   },
   typography: {
-    fontFamily: '"M PLUS Rounded 1c", "Hiragino Maru Gothic ProN", "Quicksand", sans-serif',
+    fontFamily:
+      '"M PLUS Rounded 1c", "Hiragino Maru Gothic ProN", "Quicksand", sans-serif',
     h6: {
       fontWeight: 700,
       color: "#E65100",
@@ -111,10 +113,27 @@ function HomePage() {
             </Typography>
             <Box sx={{ display: "flex", gap: 2 }}>
               <Button
+                component={Link}
+                to="/result"
+                variant="outlined"
+                color="primary"
+                sx={{
+                  borderColor: "#FF4081",
+                  color: "#FF4081",
+                  backgroundColor: "#fff",
+                }}
+              >
+                生成画像確認
+              </Button>
+              <Button
                 onClick={handleRankingOpen}
                 variant="outlined"
                 color="primary"
-                sx={{ borderColor: "#FF4081", color: "#FF4081", backgroundColor: "#fff" }}
+                sx={{
+                  borderColor: "#FF4081",
+                  color: "#FF4081",
+                  backgroundColor: "#fff",
+                }}
               >
                 ランキングを表示
               </Button>

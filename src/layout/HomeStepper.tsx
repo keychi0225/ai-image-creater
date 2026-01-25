@@ -6,17 +6,18 @@ import StepLabel from "@mui/material/StepLabel";
 import Button from "@mui/material/Button";
 import TextChat from "./TextChat";
 import PopCreatePage from "./PopCreatePage";
-import ImageResultPage from "./ImageResultPage";
+//import ImageResultPage from "./ImageResultPage";
 import { Paper } from "@mui/material";
 
-const steps = ["キャッチコピー作成", "POP作成", "生成結果"];
+const steps = ["キャッチコピー作成", "POP作成"];
+//const steps = ["キャッチコピー作成", "POP作成", "生成結果"];
 
 export default function HomeStepper() {
   const [thoughts, setThoughts] = React.useState<string>("");
   const [activeStep, setActiveStep] = React.useState(0);
   const [skipped, setSkipped] = React.useState(new Set<number>());
   const [catchCopy, setCatchCopy] = React.useState<string>("");
-  const [imageName, setImageName] = React.useState<string>("");
+  //const [imageName, setImageName] = React.useState<string>("");
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
   const isStepSkipped = (step: number) => {
     return skipped.has(step);
@@ -71,25 +72,41 @@ export default function HomeStepper() {
             <PopCreatePage
               thoughts={thoughts}
               catchCopy={catchCopy}
-              onSyncImage={setImageName}
+              //onSyncImage={setImageName}
+              onSyncImage={() => {}}
               onLoad={setIsLoading}
             />
           )}
-          {activeStep == 2 && <ImageResultPage imageName={imageName} />}
+          {/* {activeStep == 2 && <ImageResultPage imageName={imageName} />} */}
           <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
             {!isLoading && (
               <Button
                 variant="contained"
                 disabled={activeStep === 0}
                 onClick={handleBack}
-                sx={{ m: 4, borderRadius: "50px", fontWeight: "bold", backgroundColor: "#8D6E63", color: "#fff" }}
+                sx={{
+                  m: 4,
+                  borderRadius: "50px",
+                  fontWeight: "bold",
+                  backgroundColor: "#8D6E63",
+                  color: "#fff",
+                }}
               >
                 Back
               </Button>
             )}
             <Box sx={{ flex: "1 1 auto" }} />
-            {!isLoading && activeStep !== 2 && (
-              <Button sx={{ m: 4, borderRadius: "50px", fontWeight: "bold", backgroundColor: "#FF4081" }} variant="contained" onClick={handleNext}>
+            {!isLoading && activeStep < 1 && (
+              <Button
+                sx={{
+                  m: 4,
+                  borderRadius: "50px",
+                  fontWeight: "bold",
+                  backgroundColor: "#FF4081",
+                }}
+                variant="contained"
+                onClick={handleNext}
+              >
                 {activeStep === steps.length - 1 ? "Finish" : "Next"}
               </Button>
             )}

@@ -352,6 +352,50 @@ def clear_votes(req: https_fn.Request) -> https_fn.Response:
         return create_response(jsonify({"message": "Error: An unexpected error occurred."}))
 
 
+@https_fn.on_request(secrets=["GCP_KEY_PATH"], timeout_sec=300, memory=2048)
+def get_images_from_storage(req: https_fn.Request) -> https_fn.Response:
+    # クエリパラメータの取得（数値に変換し、デフォルト値を設定）
+    try:
+        limit = int(req.args.get("limit", 1))
+        offset = int(req.args.get("offset", 0))
+    except ValueError:
+        return https_fn.Response("Invalid parameters", status=400)
+
+    # Storageバケットへの参照を取得
+    bucket = storage.bucket()
+
+    # 1. images/ フォルダ内のファイルをリストアップ
+    blobs = list(bucket.list_blobs(prefix='images/'))
+
+    # 2. 更新日時（updated）で降順（新しい順）にソート
+    blobs.sort(key=lambda x: x.updated, reverse=True)
+
+    # 3. 指定範囲を抽出
+    selected_blobs = blobs[offset: offset + limit]
+
+    # 4. 配列（リスト）レスポンスの作成
+    image_list = []
+    for blob in selected_blobs:
+        # フォルダ自体（images/）がリストに含まれる場合を除外
+        if blob.name == "images/":
+            continue
+        # 画像を公開
+        blob.make_public()
+        # ファイルのMIMEタイプを推測
+        mimetype, _ = mimetypes.guess_type(blob.name)
+
+        # 情報を辞書にまとめる
+        image_info = {
+            "name": blob.name,
+            "updated": blob.updated.isoformat(),  # 日時を文字列に変換
+            "size": blob.size,
+            "contentType": mimetype or 'application/octet-stream',
+            # 公開設定されている場合はpublic_url、そうでない場合は名前などを返す
+            "url": blob.public_url
+        }
+        image_list.append(image_info)
+    return create_response(jsonify(image_list))
+
 # Functionsが使用するシークレットを定義
 # 登録したシークレット名 (SECRET_KEY_STT) を指定
 @https_fn.on_request(secrets=["GCP_KEY_PATH"], timeout_sec=300, memory=2048 )
