@@ -68,7 +68,7 @@ const PopCreatePage = (props: PopCreatePageProps) => {
   const [signature, setSignature] = useState("―― K.T.（小学4年生・男子）");
   const [publisher, setPublisher] = useState("○○○○社");
   const [illustrationElements, setIllustrationElements] = useState(
-    `左下にテーマに関連するキャラクターや動物（吹き出しつき）`
+    `左下にテーマに関連するキャラクターや動物（吹き出しつき）`,
   );
   const [style, setStyle] =
     useState(`①【最重要】余白があれば、背景にテーマに関連する小物をシンプルに描く
@@ -156,7 +156,7 @@ ${
 出力条件：${outputConditions}`;
 
       const response = await fetch(
-        `${API_ENDPOINT}?prompt=${prompt}&size=${popSize.width}x${popSize.height}`,
+        `${API_ENDPOINT}?prompt=${prompt}&size=${popSize.width}x${popSize.height}&filename=${catchCopy}`,
         {
           method: "POST",
           headers: {
@@ -164,7 +164,7 @@ ${
             // If your API requires an Authorization header, add it here.
             // 'Authorization': `Bearer ${apiKey}`,
           },
-        }
+        },
       );
 
       const data = await response.json();
@@ -208,11 +208,24 @@ ${
       </Typography>
 
       {/* 最優先の条件 */}
-      <Paper elevation={0} sx={{ p: 3, borderRadius: "16px", border: "3px solid #FFCC80", backgroundColor: "#fff" }}>
+      <Paper
+        elevation={0}
+        sx={{
+          p: 3,
+          borderRadius: "16px",
+          border: "3px solid #FFCC80",
+          backgroundColor: "#fff",
+        }}
+      >
         <Typography
           variant="h6"
           component="h2"
-          sx={{ textAlign: "start", mb: 2, color: "#E65100", fontWeight: "bold" }}
+          sx={{
+            textAlign: "start",
+            mb: 2,
+            color: "#E65100",
+            fontWeight: "bold",
+          }}
         >
           【最優先の条件】
         </Typography>
@@ -229,11 +242,24 @@ ${
       <FlowConnector />
 
       {/* キャッチコピー */}
-      <Paper elevation={0} sx={{ p: 3, borderRadius: "16px", border: "3px solid #FFCC80", backgroundColor: "#fff" }}>
+      <Paper
+        elevation={0}
+        sx={{
+          p: 3,
+          borderRadius: "16px",
+          border: "3px solid #FFCC80",
+          backgroundColor: "#fff",
+        }}
+      >
         <Typography
           variant="h6"
           component="h2"
-          sx={{ textAlign: "start", mb: 2, color: "#E65100", fontWeight: "bold" }}
+          sx={{
+            textAlign: "start",
+            mb: 2,
+            color: "#E65100",
+            fontWeight: "bold",
+          }}
         >
           【キャッチコピー】
         </Typography>
@@ -288,11 +314,24 @@ ${
       <FlowConnector />
 
       {/* 本の内容 */}
-      <Paper elevation={0} sx={{ p: 3, borderRadius: "16px", border: "3px solid #FFCC80", backgroundColor: "#fff" }}>
+      <Paper
+        elevation={0}
+        sx={{
+          p: 3,
+          borderRadius: "16px",
+          border: "3px solid #FFCC80",
+          backgroundColor: "#fff",
+        }}
+      >
         <Typography
           variant="h6"
           component="h2"
-          sx={{ textAlign: "start", mb: 2, color: "#E65100", fontWeight: "bold" }}
+          sx={{
+            textAlign: "start",
+            mb: 2,
+            color: "#E65100",
+            fontWeight: "bold",
+          }}
         >
           【本の内容】
         </Typography>
@@ -349,11 +388,24 @@ ${
       <FlowConnector />
 
       {/* イラスト要素 */}
-      <Paper elevation={0} sx={{ p: 3, borderRadius: "16px", border: "3px solid #FFCC80", backgroundColor: "#fff" }}>
+      <Paper
+        elevation={0}
+        sx={{
+          p: 3,
+          borderRadius: "16px",
+          border: "3px solid #FFCC80",
+          backgroundColor: "#fff",
+        }}
+      >
         <Typography
           variant="h6"
           component="h2"
-          sx={{ textAlign: "start", mb: 2, color: "#E65100", fontWeight: "bold" }}
+          sx={{
+            textAlign: "start",
+            mb: 2,
+            color: "#E65100",
+            fontWeight: "bold",
+          }}
         >
           【イラスト要素】
         </Typography>
@@ -379,11 +431,24 @@ ${
       <FlowConnector />
 
       {/* オプション機能 */}
-      <Paper elevation={0} sx={{ p: 3, borderRadius: "16px", border: "3px solid #FFCC80", backgroundColor: "#fff" }}>
+      <Paper
+        elevation={0}
+        sx={{
+          p: 3,
+          borderRadius: "16px",
+          border: "3px solid #FFCC80",
+          backgroundColor: "#fff",
+        }}
+      >
         <Typography
           variant="h6"
           component="h2"
-          sx={{ textAlign: "start", mb: 1, color: "#E65100", fontWeight: "bold" }}
+          sx={{
+            textAlign: "start",
+            mb: 1,
+            color: "#E65100",
+            fontWeight: "bold",
+          }}
         >
           【オプション機能】
         </Typography>
@@ -532,14 +597,29 @@ ${
 
       <FlowConnector />
 
-      <Paper elevation={0} sx={{ p: 4, borderRadius: "16px", border: "3px solid #FFCC80", backgroundColor: "#fff", textAlign: "center" }}>
+      <Paper
+        elevation={0}
+        sx={{
+          p: 4,
+          borderRadius: "16px",
+          border: "3px solid #FFCC80",
+          backgroundColor: "#fff",
+          textAlign: "center",
+        }}
+      >
         <Box sx={{ display: "flex", justifyContent: "center" }}>
           <Button
             variant="contained"
             color="primary"
             onClick={handleCreatePop}
             disabled={isLoading}
-            sx={{ borderRadius: "50px", backgroundColor: "#FF4081", fontWeight: "bold", px: 5, py: 1.5 }}
+            sx={{
+              borderRadius: "50px",
+              backgroundColor: "#FF4081",
+              fontWeight: "bold",
+              px: 5,
+              py: 1.5,
+            }}
           >
             {isLoading ? <CircularProgress size={24} /> : "POP を作成"}
           </Button>

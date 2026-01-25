@@ -116,6 +116,7 @@ def generate_and_save_image(req: https_fn.Request) -> https_fn.Response:
     # URLクエリパラメータからプロンプトを取得
     prompt = req.args.get('prompt')
     size = req.args.get('size')
+    filename = req.args.get('filename')
     print('起動')
     print(prompt)
     if not prompt:
@@ -154,6 +155,11 @@ def generate_and_save_image(req: https_fn.Request) -> https_fn.Response:
         import hashlib
         prompt_hash = hashlib.sha256(prompt.encode()).hexdigest()[:8]
         file_name = f"image_{timestamp}_{prompt_hash}.png"
+
+        # ファイル名をカスタマイズする場合
+        if filename:
+            file_name = f"{filename}.png"
+
         blob = bucket.blob(f"images/{file_name}")
 
         # Storageに画像をアップロード
